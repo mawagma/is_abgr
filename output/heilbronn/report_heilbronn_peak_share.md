@@ -3,19 +3,19 @@
 Datenquelle: © OpenStreetMap-Mitwirkende (ODbL), abgerufen über Overpass (https://overpass.kumi.systems/api).  
 OSM-Datenstand (Overpass `timestamp_osm_base`): 2026-07-24T11:04:51Z  
 Abrufzeitpunkt (Cache): 2026-10-18T20:37:06+00:00  
-Lauf: 2026-10-18T20:50:04+00:00 · params_hash `c2ae563934`
+Lauf: 2026-10-18T21:10:42+00:00 · params_hash `f5b48c1424`
 
 ## Zonen
 
 | zone_id | rank | area_ha | poi_count | poi_density_ha | weighted_density_ha | retail_count | chain_share | ped_street_m | share_retail | share_gastro | share_service | share_culture_leisure | share_health | perimeter_m | compactness |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Z1 | 1 | 6.34 | 155 | 24.43 | 22.51 | 98 | 0.408 | 1287.0 | 0.632 | 0.206 | 0.116 | 0.032 | 0.013 | 1894.8 | 0.222 |
-| Z2 | 2 | 13.13 | 158 | 12.04 | 8.41 | 68 | 0.368 | 1965.0 | 0.43 | 0.297 | 0.171 | 0.07 | 0.032 | 4912.6 | 0.068 |
-| Z3 | 3 | 19.22 | 136 | 7.08 | 3.86 | 36 | 0.111 | 1038.0 | 0.265 | 0.353 | 0.257 | 0.088 | 0.037 | 7761.1 | 0.04 |
+| Z1 | 1 | 5.94 | 126 | 21.22 | 28.04 | 101 | 0.475 | 1186.0 | 0.802 | 0.198 | 0.0 | 0 | 0 | 1666.3 | 0.269 |
+| Z2 | 2 | 9.94 | 138 | 13.89 | 15.85 | 83 | 0.229 | 1735.0 | 0.601 | 0.384 | 0.014 | 0 | 0 | 4544.1 | 0.06 |
+| Z3 | 3 | 19.98 | 116 | 5.81 | 6.29 | 61 | 0.082 | 1387.0 | 0.526 | 0.405 | 0.069 | 0 | 0 | 7855.5 | 0.041 |
 
 ## Vergleichbarkeit zwischen Städten
 
-- Abgrenzung mit derselben Regel in jeder Stadt: Glättung in Metern ({'radius_m': 100, 'sigma_m': 40}), Klassen relativ zum Spitzenwert der Stadt (`peak_share` [0.5, 0.25, 0.1]).
+- Abgrenzung mit derselben Regel in jeder Stadt: Glättung in Metern ({'radius_m': 50, 'sigma_m': 40}), Klassen relativ zum Spitzenwert der Stadt (`peak_share` [0.5, 0.25, 0.1]).
 - Größere Polygone sammeln mehr GPS-Signale. Frequenzen deshalb nicht absolut, sondern normiert vergleichen: **Frequenz je ha** (`area_ha`) und **je 100 m Fußgängerzone** (`ped_street_m`).
 - `weighted_density_ha` = gewichtete POIs je ha; `chain_share` = Filialisierungsgrad (Anteil Einzelhandel mit OSM-Tag `brand`), ein typisches Merkmal von 1A-Lagen.
 
@@ -25,31 +25,31 @@ Lauf: 2026-10-18T20:50:04+00:00 · params_hash `c2ae563934`
 |---|---|---|---|
 | OK | Genau 3 Zonen, gültig, nicht leer | 3 Zonen; leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| OK | Z1: Fläche ≥ 2000 m² | 63439 m² | True |
-| OK | POI-Dichte Z1 > Z2 > Z3 | 24.43 > 12.04 > 7.08 POI/ha | True |
+| OK | Z1: Fläche ≥ 2000 m² | 59382 m² | True |
+| OK | POI-Dichte Z1 > Z2 > Z3 | 21.22 > 13.89 > 5.81 POI/ha | True |
 | OK | Z1: ein Polygon | Polygon, 1 Teil(e) | False |
-| OK | Z2: ein Polygon | Polygon, 1 Teil(e) | False |
-| WARNUNG | Z3: ein Polygon | MultiPolygon, 5 Teil(e) | False |
-| OK | Z1: Polsby-Popper ≥ 0.2 | 0.222 | False |
-| WARNUNG | Z2: Polsby-Popper ≥ 0.2 | 0.068 | False |
-| WARNUNG | Z3: Polsby-Popper ≥ 0.2 | 0.040 | False |
-| OK | Sensitivität h3_resolution=12: IoU(Z1) ≥ 0.7 | IoU = 0.705 | False |
-| WARNUNG | Sensitivität smoothing={'radius_m': 150, 'sigma_m': 60}: IoU(Z1) ≥ 0.7 | IoU = 0.530 | False |
+| WARNUNG | Z2: ein Polygon | MultiPolygon, 6 Teil(e) | False |
+| OK | Z3: ein Polygon | Polygon, 1 Teil(e) | False |
+| OK | Z1: Polsby-Popper ≥ 0.2 | 0.269 | False |
+| WARNUNG | Z2: Polsby-Popper ≥ 0.2 | 0.060 | False |
+| WARNUNG | Z3: Polsby-Popper ≥ 0.2 | 0.041 | False |
+| WARNUNG | Sensitivität h3_resolution=12: IoU(Z1) ≥ 0.7 | IoU = 0.652 | False |
+| WARNUNG | Sensitivität smoothing={'radius_m': 150, 'sigma_m': 60}: IoU(Z1) ≥ 0.7 | IoU = 0.489 | False |
 | OK | Plausibilität: Z1 schneidet „Fleiner Straße“ | 3 OSM-Objekt(e) mit diesem Namen | False |
-| OK | Plausibilität: Z1 schneidet „Sülmerstraße“ | 7 OSM-Objekt(e) mit diesem Namen | False |
+| WARNUNG | Plausibilität: Z1 schneidet „Sülmerstraße“ | 7 OSM-Objekt(e) mit diesem Namen | False |
 | OK | Plausibilität: Z1 schneidet „Kaiserstraße“ | 13 OSM-Objekt(e) mit diesem Namen | False |
-| WARNUNG | Plausibilität: Z1 schneidet „Marktplatz“ | 4 OSM-Objekt(e) mit diesem Namen | False |
+| OK | Plausibilität: Z1 schneidet „Marktplatz“ | 4 OSM-Objekt(e) mit diesem Namen | False |
 
 ## Suchraum und Daten
 
 - Zentrum: place=city (49.14229, 9.21866), Radius 2000 m, Suchraum 1254.6 ha (mit Verwaltungsgrenze verschnitten)
-- POIs nach Bereinigung: 1351 (retail: 455, gastro: 303, service: 271, culture_leisure: 268, health: 54)
-- H3-Zellen: 6250 (Auflösung 11, Ø 0.20 ha), davon Dichte > 0: 4611
-- Inseln (klassifiziert, nicht mit Z1 verbunden): 72 Zellen, 14.4 ha – Klassen {2: 2, 3: 70}
+- POIs nach Bereinigung: 911 (retail: 584, gastro: 305, service: 22)
+- H3-Zellen: 6250 (Auflösung 11, Ø 0.20 ha), davon Dichte > 0: 1991
+- Inseln (klassifiziert, nicht mit Z1 verbunden): 179 Zellen, 35.9 ha – Klassen {2: 8, 3: 171}
 
 ## Parameter
 
-Overrides gegenüber `config.yaml`: keine
+Overrides gegenüber `config.yaml`: mode='grid'
 
 Abweichungen/Auslegungen gegenüber CLAUDE.md:
 
@@ -62,10 +62,12 @@ Abweichungen/Auslegungen gegenüber CLAUDE.md:
 
 ```yaml
 city: Heilbronn, Germany
+mode: grid
+poi_model: ground_floor
 search_radius_m: 2000
 h3_resolution: 11
 smoothing:
-  radius_m: 100
+  radius_m: 50
   sigma_m: 40
 classification: peak_share
 peak_share:
@@ -74,6 +76,10 @@ peak_share:
 - 0.1
 min_zone_m2:
   Z1: 2000
+max_area_ha:
+- 6
+- 10
+- 20
 quantiles:
 - 0.5
 - 0.75
@@ -340,4 +346,78 @@ qa:
     - Sülmerstraße
     - Kaiserstraße
     - Marktplatz
+ground_floor_categories:
+  retail:
+    shop:
+      exclude:
+      - vacant
+    amenity:
+    - pharmacy
+  gastro:
+    amenity:
+    - restaurant
+    - cafe
+    - fast_food
+    - bar
+    - pub
+    - ice_cream
+    - biergarten
+  service:
+    amenity:
+    - bank
+street:
+  segment_length_m: 50
+  snap_max_dist_m: 30
+  buffer_m: 20
+  smoothing_neighbors: 1
+  brand_weight: 1.75
+  thresholds:
+    lage_1a:
+      min_density: 8
+      min_brand_share: 0.4
+    lage_1b:
+      min_density: 5
+    lage_2:
+      min_density: 2
+  max_gap_segments: 1
+  min_hole_ha: 0.2
+  target_ranges_km:
+    lage_1a:
+    - 0.6
+    - 1.2
+    lage_1b:
+    - 1.0
+    - 2.0
+    lage_2:
+    - 2.0
+    - 4.0
+  target_ranges_ha:
+    lage_1a:
+    - 3
+    - 6
+    lage_1b:
+    - 5
+    - 10
+    lage_2:
+    - 10
+    - 20
+  auto_calibrate: false
+  calibration_iterations: 40
+  highway:
+  - pedestrian
+  - living_street
+  - residential
+  - unclassified
+  - tertiary
+  - secondary
+  - primary
+  highway_named_only:
+  - footway
+  - path
+  touch_tolerance_m: 0.5
+  plausibility:
+    Heilbronn, Germany:
+    - Fleiner Straße
+    - Sülmerstraße
+    - Kaiserstraße
 ```

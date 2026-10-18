@@ -38,3 +38,39 @@ def run_checks(zones, cfg, sens=(), plaus=None):
         hit = len(geoms) > 0 and bool(geoms.intersects(g[0]).any())
         add(f"Plausibilität: Z1 schneidet „{name}“", False, hit, f"{len(geoms)} OSM-Objekt(e) mit diesem Namen")
     return out
+
+
+def street_checks(res, cfg):
+    """Prüfungen Street-Modus. Warnungen zu Zielgrößen nennen die Schwelle und die Richtung."""
+    st, q, out = cfg["street"], cfg["qa"], []
+    add = lambda name, hard, ok, detail: out.append(
+        {"check": name, "hard": hard, "ok": bool(ok), "status": "OK" if ok else ("FEHLER" if hard else "WARNUNG"),
+         "detail": detail})
+    z = res["zones"]
+    g = list(z.geometry)
+    add("Genau 3 Lagen, gültig, nicht leer", True, len(g) == 3 and all(x.is_valid and not x.is_empty for x in g),
+        f"leer: {[l for l, x in zip(z['lage'], g) if x.is_empty]}")
+    ov = max((a.intersection(b).area for a, b in combinations(g, 2)), default=0.0)
+    add(f"Überlappung < {q['max_overlap_m2']} m²", True, ov < q["max_overlap_m2"], f"max. {ov:.4f} m²")
+    d = z["density_per_100m"].tolist()
+    add("Dichte 1a > 1b > 2", True, len(d) == 3 and d[0] > d[1] > d[2], " > ".join(map(str, d)) + " je 100 m")
+    th = res["thresholds"]
+    for r in z.itertuples():
+        lo, hi = st["target_ranges_km"][r.lage]
+        dens = f"{r.lage}.min_density ({th[r.lage]['min_density']})"
+        tip = "" if lo <= r.length_km <= hi else (f" → {dens} erhöhen" if r.length_km > hi else f" → {dens} senken"
+            + (f" oder lage_1a.min_brand_share ({th['lage_1a']['min_brand_share']}) senken"
+               if r.lage == "lage_1a" else ""))
+        add(f"{r.lage}: Länge {lo}–{hi} km", False, lo <= r.length_km <= hi, f"{r.length_km} km{tip}")
+        lo_a, hi_a = st["target_ranges_ha"][r.lage]
+        in_len = lo <= r.length_km <= hi
+        tip = "" if lo_a <= r.area_ha <= hi_a else (
+            f" → buffer_m ({st['buffer_m']}) {'verkleinern' if r.area_ha > hi_a else 'vergrößern'}" if in_len
+            else " → folgt der Länge (siehe oben)")
+        add(f"{r.lage}: Fläche {lo_a}–{hi_a} ha", False, lo_a <= r.area_ha <= hi_a, f"{r.area_ha} ha{tip}")
+    seg = res["segments"]
+    names = set(seg.loc[seg["lage"] == "lage_1a", "street"].dropna())
+    for n in st["plausibility"].get(cfg["city"], []):
+        add(f"Plausibilität: 1a enthält „{n}“", False, n in names,
+            f"{(seg[(seg['street'] == n) & (seg['lage'] == 'lage_1a')]['length_m'].sum()):.0f} m in 1a")
+    return out

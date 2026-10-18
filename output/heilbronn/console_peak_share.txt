@@ -1,22 +1,22 @@
 
-Heilbronn, Germany – peak_share (params_hash c2ae563934, OSM 2026-07-24T11:04:51Z)
+Heilbronn, Germany – peak_share (params_hash f5b48c1424, OSM 2026-07-24T11:04:51Z)
 zone_id  area_ha  poi_count  poi_density_ha  weighted_density_ha  chain_share  ped_street_m  compactness
-     Z1     6.34        155           24.43                22.51        0.408        1287.0        0.222
-     Z2    13.13        158           12.04                 8.41        0.368        1965.0        0.068
-     Z3    19.22        136            7.08                 3.86        0.111        1038.0        0.040
+     Z1     5.94        126           21.22                28.04        0.475        1186.0        0.269
+     Z2     9.94        138           13.89                15.85        0.229        1735.0        0.060
+     Z3    19.98        116            5.81                 6.29        0.082        1387.0        0.041
   [OK     ] Genau 3 Zonen, gültig, nicht leer: 3 Zonen; leer: []
   [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
-  [OK     ] Z1: Fläche ≥ 2000 m²: 63439 m²
-  [OK     ] POI-Dichte Z1 > Z2 > Z3: 24.43 > 12.04 > 7.08 POI/ha
+  [OK     ] Z1: Fläche ≥ 2000 m²: 59382 m²
+  [OK     ] POI-Dichte Z1 > Z2 > Z3: 21.22 > 13.89 > 5.81 POI/ha
   [OK     ] Z1: ein Polygon: Polygon, 1 Teil(e)
-  [OK     ] Z2: ein Polygon: Polygon, 1 Teil(e)
-  [WARNUNG] Z3: ein Polygon: MultiPolygon, 5 Teil(e)
-  [OK     ] Z1: Polsby-Popper ≥ 0.2: 0.222
-  [WARNUNG] Z2: Polsby-Popper ≥ 0.2: 0.068
-  [WARNUNG] Z3: Polsby-Popper ≥ 0.2: 0.040
-  [OK     ] Sensitivität h3_resolution=12: IoU(Z1) ≥ 0.7: IoU = 0.705
-  [WARNUNG] Sensitivität smoothing={'radius_m': 150, 'sigma_m': 60}: IoU(Z1) ≥ 0.7: IoU = 0.530
+  [WARNUNG] Z2: ein Polygon: MultiPolygon, 6 Teil(e)
+  [OK     ] Z3: ein Polygon: Polygon, 1 Teil(e)
+  [OK     ] Z1: Polsby-Popper ≥ 0.2: 0.269
+  [WARNUNG] Z2: Polsby-Popper ≥ 0.2: 0.060
+  [WARNUNG] Z3: Polsby-Popper ≥ 0.2: 0.041
+  [WARNUNG] Sensitivität h3_resolution=12: IoU(Z1) ≥ 0.7: IoU = 0.652
+  [WARNUNG] Sensitivität smoothing={'radius_m': 150, 'sigma_m': 60}: IoU(Z1) ≥ 0.7: IoU = 0.489
   [OK     ] Plausibilität: Z1 schneidet „Fleiner Straße“: 3 OSM-Objekt(e) mit diesem Namen
-  [OK     ] Plausibilität: Z1 schneidet „Sülmerstraße“: 7 OSM-Objekt(e) mit diesem Namen
+  [WARNUNG] Plausibilität: Z1 schneidet „Sülmerstraße“: 7 OSM-Objekt(e) mit diesem Namen
   [OK     ] Plausibilität: Z1 schneidet „Kaiserstraße“: 13 OSM-Objekt(e) mit diesem Namen
-  [WARNUNG] Plausibilität: Z1 schneidet „Marktplatz“: 4 OSM-Objekt(e) mit diesem Namen
+  [OK     ] Plausibilität: Z1 schneidet „Marktplatz“: 4 OSM-Objekt(e) mit diesem Namen

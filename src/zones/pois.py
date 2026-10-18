@@ -43,9 +43,14 @@ def fetch_osm(aoi_4326, cfg):
     names = cfg["qa"]["plausibility"].get(cfg["city"])
     if names:
         tags["name"] = names
+    return features(aoi_4326, tags, cfg)
+
+
+def features(polygon_4326, tags, cfg):
+    """ox.features_from_polygon mit Wiederholung bei 5xx; Ergebnis metrisch."""
     for attempt in range(cfg["overpass_retries"] + 1):
         try:
-            raw = ox.features_from_polygon(aoi_4326, tags).reset_index()
+            raw = ox.features_from_polygon(polygon_4326, tags).reset_index()
             return raw.to_crs(cfg["crs_metric"])
         except ox._errors.ResponseStatusCodeError as e:  # öffentliche Overpass-Server liefern sporadisch 5xx
             if attempt == cfg["overpass_retries"]:
@@ -70,14 +75,22 @@ def categorize(raw, cfg):
         or [pd.Series(False, index=raw.index)]
     )
     raw = raw[~dead]
-    cat = label(raw, cfg["categories"])
+    ground = cfg.get("poi_model", "categories") == "ground_floor"
+    cat = label(raw, cfg["ground_floor_categories"] if ground else cfg["categories"])
+    sel = raw[cat.notna()]
     keep = ["element", "id", "name"] if "name" in raw else ["element", "id"]
-    pois = raw.loc[cat.notna(), keep + ["geometry"]].copy()
+    pois = sel[keep + ["geometry"]].copy()
     pois["category"] = cat[cat.notna()]
     pois["geometry"] = pois.geometry.representative_point()
-    pois["chain"] = (raw.loc[cat.notna(), "brand"].notna() if "brand" in raw else False) & (pois["category"] == "retail")
-    pois["size_factor"] = size_factor(raw.loc[cat.notna()], pois["category"], cfg["size_weighting"])
-    pois["weight"] = pois["category"].map(cfg["weights"]).astype(float) * pois["size_factor"]
+    col = lambda c: sel[c] if c in sel else pd.Series(None, index=sel.index, dtype=object)
+    if ground:  # Erdgeschoss-Nutzungen; Filialist = brand oder brand:wikidata
+        pois["chain"] = col("brand").notna() | col("brand:wikidata").notna()
+        pois["size_factor"] = 1.0
+        pois["weight"] = np.where(pois["chain"], cfg["street"]["brand_weight"], 1.0)
+    else:
+        pois["chain"] = col("brand").notna() & (pois["category"] == "retail")
+        pois["size_factor"] = size_factor(sel, pois["category"], cfg["size_weighting"])
+        pois["weight"] = pois["category"].map(cfg["weights"]).astype(float) * pois["size_factor"]
     return dedupe(pois.reset_index(drop=True), cfg["dedupe_m"])
 
 

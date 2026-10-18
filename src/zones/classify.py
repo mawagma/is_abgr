@@ -63,6 +63,39 @@ def component(seed, members):
     return comp
 
 
+def limit_area(cells, max_ha):
+    """Zonen größer als max_ha auf die dichtesten zusammenhängenden Zellen kürzen (Wachstum ab Maximalzelle bzw.
+    ab der Grenze zur vorigen Zone). Abgeschnittene Zellen gehen an die nächste Zone, nach Z3 an keine."""
+    cells = cells.copy()
+    idx = {c: i for i, c in enumerate(cells["h3"])}
+    zone, dens, area = cells["zone"].to_numpy().copy(), cells["dens"].to_numpy(), cells["area_ha"].to_numpy()
+    nbrs = lambda i: (idx[n] for n in h3.grid_disk(cells["h3"].iat[i], 1) if n in idx and idx[n] != i)
+    prev, carry = set(), set()
+    for z, limit in zip((1, 2, 3), max_ha):
+        members = set(np.flatnonzero(zone == z)) | carry
+        keep = members
+        if area[list(members)].sum() > limit:
+            seeds = {i for i in members if any(n in prev for n in nbrs(i))} or {max(members, key=lambda i: dens[i])}
+            heap, seen, keep, cum = [(-dens[i], i) for i in seeds], set(seeds), set(), 0.0
+            heapq.heapify(heap)
+            while heap:
+                _, i = heapq.heappop(heap)
+                if cum + area[i] > limit:
+                    continue
+                keep.add(i)
+                cum += area[i]
+                for n in nbrs(i):
+                    if n in members and n not in seen:
+                        seen.add(n)
+                        heapq.heappush(heap, (-dens[n], n))
+        carry = members - keep
+        zone[list(carry)] = 0
+        zone[list(keep)] = z
+        prev |= keep
+    cells["zone"] = zone
+    return cells
+
+
 def assign_zones(cells):
     """zone 1..3 nach Zusammenhang mit der Maximalzelle; klassifizierte Rest-Zellen = Inseln (zone 0)."""
     cells = cells.copy()

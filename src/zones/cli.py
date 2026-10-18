@@ -12,12 +12,13 @@ import pandas as pd
 import yaml
 
 from .aoi import build_aoi
-from .classify import assign_zones, classify
-from .export import write_all, zone_attributes
+from .classify import assign_zones, classify, limit_area
+from .export import write_all, write_street, zone_attributes
 from .grid import build_grid
 from .polygons import zone_polygons
 from .pois import categorize, configure_osmnx, context, fetch_osm
-from .qa import run_checks
+from .qa import run_checks, street_checks
+from .street import load_streets, run_street
 
 
 def build_zones(pois, aoi, cfg, method):
@@ -25,6 +26,8 @@ def build_zones(pois, aoi, cfg, method):
     sm = cfg["smoothing"]
     cells = build_grid(aoi, pois, cfg, cfg["h3_resolution"], sm["radius_m"], sm["sigma_m"])
     cells, islands = assign_zones(classify(cells, cfg, method))
+    if cfg.get("max_area_ha") and method != "equal_area":
+        cells = limit_area(cells, cfg["max_area_ha"])
     return {"cells": cells, "islands": islands, "zones": zone_polygons(cells, cfg)}
 
 
@@ -54,11 +57,18 @@ def main(argv=None):
     ap.add_argument("--config", default="config.yaml")
     ap.add_argument("--city")
     ap.add_argument("--classification", choices=["peak_share", "jenks", "quantile", "equal_area"])
+    ap.add_argument("--mode", choices=["street", "grid"])
+    ap.add_argument("--auto-calibrate", action=argparse.BooleanOptionalAction, default=None,
+                    help="Street-Modus: Schwellen auf target_ranges_km kalibrieren (überschreibt config)")
     a = ap.parse_args(argv)
     cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8"))
-    overrides = [f"{k}={v!r}" for k, v in (("city", a.city), ("classification", a.classification))
-                 if v and v != cfg[k]]
-    cfg.update({k: v for k, v in (("city", a.city), ("classification", a.classification)) if v})
+    args = (("city", a.city), ("classification", a.classification), ("mode", a.mode))
+    overrides = [f"{k}={v!r}" for k, v in args if v and v != cfg[k]]
+    cfg.update({k: v for k, v in args if v})
+    if a.auto_calibrate is not None:
+        if a.auto_calibrate != cfg["street"]["auto_calibrate"]:
+            overrides.append(f"street.auto_calibrate={a.auto_calibrate}")
+        cfg["street"] = {**cfg["street"], "auto_calibrate": a.auto_calibrate}
     method = cfg["classification"]
 
     configure_osmnx(cfg)
@@ -68,6 +78,8 @@ def main(argv=None):
     raw = fetch_osm(gpd.GeoSeries([aoi], crs=crs).to_crs(4326).iloc[0], cfg)
     pois = categorize(raw, cfg)
     pois = pois[pois.within(aoi)].reset_index(drop=True)  # Flächen am Rand: repräsentativer Punkt außerhalb
+    if cfg["mode"] == "street":
+        return main_street(cfg, aoi, raw, pois, overrides)
     res = build_zones(pois, aoi, cfg, method)
 
     sens = []
@@ -98,6 +110,26 @@ def main(argv=None):
             "compactness"]
     print(f"\n{cfg['city']} – {method} (params_hash {params_hash}, OSM {osm_ts})")
     print(pd.DataFrame(res["zones"][cols]).to_string(index=False))
+    for c in checks:
+        print(f"  [{c['status']:7}] {c['check']}: {c['detail']}")
+    return 1 if any(c["hard"] and not c["ok"] for c in checks) else 0
+
+
+def main_street(cfg, aoi, raw, pois, overrides):
+    """Street-Modus; zum Vergleich wird der Rastermodus mit denselben POIs mitgerechnet."""
+    res = run_street(load_streets(aoi, cfg), pois, cfg)
+    grid_zones = build_zones(pois, aoi, cfg, cfg["classification"])["zones"]
+    checks = street_checks(res, cfg)
+    params_hash = hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:10]
+    osm_ts, fetched = osm_timestamps(cfg["cache_dir"])
+    meta = {"params_hash": params_hash, "osm_timestamp": osm_ts, "fetched_at": fetched, "overrides": overrides,
+            "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    s = slug(cfg["city"])
+    stem = f"{s}_street" + ("_calibrated" if res["auto_calibrate"] else "")
+    write_street(Path(cfg["output_dir"]) / s, stem, s, res, grid_zones, cfg, checks, meta)
+    print(f"\n{cfg['city']} – street, auto_calibrate={res['auto_calibrate']} (params_hash {params_hash})")
+    print(pd.DataFrame(res["zones"].drop(columns="geometry")).to_string(index=False))
+    print("Schwellen:", res["thresholds"])
     for c in checks:
         print(f"  [{c['status']:7}] {c['check']}: {c['detail']}")
     return 1 if any(c["hard"] and not c["ok"] for c in checks) else 0

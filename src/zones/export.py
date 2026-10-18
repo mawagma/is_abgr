@@ -137,3 +137,119 @@ def write_report(path, res, cfg, checks, meta):
         "", "```yaml", yaml.safe_dump(cfg, allow_unicode=True, sort_keys=False).strip(), "```", "",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+LAGE_COLORS = {"lage_1a": "#d7191c", "lage_1b": "#fd8d3c", "lage_2": "#e6c300"}
+GRID_TO_LAGE = {"Z1": "lage_1a", "Z2": "lage_1b", "Z3": "lage_2"}
+
+
+def polygon_stats(zones, seg, pois, key):
+    """Gleiche Zählweise für Raster- und Street-Polygone: Straßenlänge (Segmente) und POIs im Polygon."""
+    rows = []
+    for r in zones.itertuples():
+        g = r.geometry
+        inside = pois[pois.within(g)]
+        rows.append({"lage": GRID_TO_LAGE.get(getattr(r, key), getattr(r, key)),
+                     "length_km": round(seg.intersection(g).length.sum() / 1000, 2), "area_ha": round(g.area / 1e4, 2),
+                     "poi_count": len(inside), "brand_share": round(inside["chain"].mean(), 3) if len(inside) else 0.0})
+    return pd.DataFrame(rows).set_index("lage")
+
+
+def write_street(out_dir, stem, slug_, res, grid_zones, cfg, checks, meta):
+    out_dir.mkdir(parents=True, exist_ok=True)
+    gpkg = out_dir / f"zones_{stem}.gpkg"
+    gpkg.unlink(missing_ok=True)
+    res["zones"].to_file(gpkg, layer="zones")
+    res["segments"].to_file(gpkg, layer="segments")
+    res["pois"].to_file(gpkg, layer="pois")
+    res["nebenlagen"].to_file(gpkg, layer="nebenlagen")
+    res["zones"].to_crs(cfg["crs_export"]).to_file(out_dir / f"zones_{stem}.geojson", driver="GeoJSON")
+    write_street_map(out_dir / f"map_{stem}.html", res)
+    suffix = stem.removeprefix(slug_ + "_street")
+    write_compare_report(out_dir / f"report_{slug_}_compare{suffix}.md", res, grid_zones, cfg, checks, meta)
+
+
+def write_street_map(path, res):
+    ll = lambda g: g.to_crs(4326)
+    z = ll(res["zones"])
+    c = z.union_all().centroid
+    m = folium.Map(location=[c.y, c.x], zoom_start=16, tiles=None, control_scale=True)
+    folium.TileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", attr=ATTR, name="OSM").add_to(m)
+    folium.GeoJson(z[["lage", "length_km", "area_ha", "poi_count", "density_per_100m", "brand_share", "geometry"]],
+                   name="Lagen (Polygone)", style_function=lambda f: {
+                       "fillColor": LAGE_COLORS[f["properties"]["lage"]], "color": LAGE_COLORS[f["properties"]["lage"]],
+                       "weight": 1, "fillOpacity": 0.25},
+                   tooltip=folium.GeoJsonTooltip(["lage", "length_km", "area_ha", "poi_count", "density_per_100m",
+                                                  "brand_share"])).add_to(m)
+    seg = res["segments"]
+    cols = ["seg_id", "street", "lage", "density", "brand_share", "poi_count", "geometry"]
+    other = seg[(seg["lage"] == "") & (seg["poi_count"] > 0)]
+    folium.GeoJson(ll(other[cols]).round(2), name="Segmente ohne Lage (mit POIs)", show=False,
+                   style_function=lambda f: {"color": "#888", "weight": 2},
+                   tooltip=folium.GeoJsonTooltip(cols[:-1])).add_to(m)
+    folium.GeoJson(ll(seg[seg["lage"] != ""][cols]).round(2), name="Segmente nach Lage",
+                   style_function=lambda f: {"color": LAGE_COLORS[f["properties"]["lage"]], "weight": 6},
+                   tooltip=folium.GeoJsonTooltip(cols[:-1])).add_to(m)
+    if len(res["nebenlagen"]):
+        folium.GeoJson(ll(res["nebenlagen"]), name="Nebenlagen (1a-Schwelle, nicht verbunden)",
+                       style_function=lambda f: {"color": "#6a3d9a", "weight": 7, "dashArray": "6 6"}).add_to(m)
+    pois = ll(res["pois"])
+    for label, grp, style in (("POIs", pois[~pois["chain"]], dict(radius=2.5, color="#555", fill_opacity=0.8)),
+                              ("Filialisten", pois[pois["chain"]], dict(radius=5, color="#6a3d9a", fill_opacity=1))):
+        fg = folium.FeatureGroup(label).add_to(m)
+        for p, name in zip(grp.geometry, grp.get("name", pd.Series(index=grp.index))):
+            folium.CircleMarker([p.y, p.x], weight=0, fill=True, tooltip=name if isinstance(name, str) else None,
+                                **style).add_to(fg)
+    folium.LayerControl(collapsed=False).add_to(m)
+    m.save(path)
+
+
+def write_compare_report(path, res, grid_zones, cfg, checks, meta):
+    st = cfg["street"]
+    s = polygon_stats(res["zones"], res["segments"], res["pois"], "lage")
+    g = polygon_stats(grid_zones, res["segments"], res["pois"], "zone_id")
+    rows = []
+    for l in ("lage_1a", "lage_1b", "lage_2"):
+        rows.append({"Lage": l, "Ziel km": "–".join(map(str, st["target_ranges_km"][l])),
+                     "Raster km": g.at[l, "length_km"], "Street km": s.at[l, "length_km"],
+                     "Ziel ha": "–".join(map(str, st["target_ranges_ha"][l])),
+                     "Raster ha": g.at[l, "area_ha"], "Street ha": s.at[l, "area_ha"],
+                     "Raster POIs": g.at[l, "poi_count"], "Street POIs": s.at[l, "poi_count"],
+                     "Raster Filialanteil": g.at[l, "brand_share"], "Street Filialanteil": s.at[l, "brand_share"]})
+    z = pd.DataFrame(res["zones"].drop(columns="geometry"))
+    th = pd.DataFrame([{"lage": l, **v} for l, v in res["thresholds"].items()])
+    lines = [
+        f"# Lagevergleich {cfg['city']}: Rastermodus gegen Street-Modus", "",
+        f"Datenquelle: {ATTR} (ODbL). OSM-Datenstand {meta['osm_timestamp']}, Lauf {meta['run_at']}, "
+        f"params_hash `{meta['params_hash']}`.  ",
+        f"Street-Modus: auto_calibrate = **{res['auto_calibrate']}**. Rastermodus: `{cfg['classification']}`, "
+        f"Res. {cfg['h3_resolution']}, max_area_ha {cfg.get('max_area_ha')}.", "",
+        "## Vergleich je Lage", "",
+        "Gleiche Zählweise für beide Modi: Straßenlänge = Länge der Straßensegmente im Polygon, POIs = "
+        "Erdgeschoss-POIs im Polygon, Filialanteil = Anteil Filialisten (brand/brand:wikidata) an diesen POIs.", "",
+        _md_table(pd.DataFrame(rows)), "",
+        "## Street-Modus: Lagen (Kennwerte über die zugeordneten Segmente)", "",
+        _md_table(z.drop(columns="street_names")), "",
+        "## Straßennamen je Lage", "",
+        *[f"- **{r.lage}**: {r.street_names or '–'}" for r in z.itertuples()], "",
+        "## Schwellen (gewichtete Betriebe je 100 m Straßenfront)", "",
+        _md_table(th.fillna("–")), "",
+    ]
+    if res["calibration"]:
+        lines += ["Automatisch kalibriert (Bisektion auf die Mitte von target_ranges_km):", "",
+                  _md_table(pd.DataFrame(res["calibration"])), ""]
+    neben = res["nebenlagen"]
+    lines += ["## Nebenlagen (erfüllen die 1a-Schwelle, ohne Verbindung zur 1a)", "",
+              _md_table(pd.DataFrame(neben.drop(columns="geometry"))) if len(neben) else "keine", "",
+              "## Prüfungen", "",
+              _md_table(pd.DataFrame(checks)[["status", "check", "detail", "hard"]].rename(columns={"hard": "hart"})),
+              "", "## Hinweise zur Methode", "",
+              "- Gleichnamige verbundene Wege werden zusammengeführt und in Abschnitte von "
+              f"{st['segment_length_m']} m geteilt; kürzere Restketten zählen für die Dichte mit "
+              f"{st['segment_length_m']} m (sonst erzeugen Stummel extreme Werte).",
+              "- Glättung über Segmente mit gemeinsamem Endpunkt; Zusammenhang der Lagen über Berührung "
+              "(Endpunkte und Kreuzungen), Lücken bis max_gap_segments werden überbrückt und der Lage zugeschlagen.",
+              "- Fußgängerflächen (Plätze als Fläche) gehen nicht als Segment ein; POIs dort werden der nächsten Straße "
+              "zugeordnet.",
+              "- Doppelt geführte Straßen (zwei Richtungsfahrbahnen) zählen mit doppelter Länge → niedrigere Dichte.", ""]
+    path.write_text("\n".join(lines), encoding="utf-8")

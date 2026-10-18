@@ -1,15 +1,23 @@
 # Startwerte laut CLAUDE.md
 city: "Heilbronn, Germany"
+mode: street                   # street | grid
+# ground_floor = Erdgeschoss-Nutzungen + Filialistengewicht (Street- und Rastermodus)
+# categories   = bisherige Kategorien (weights) + Flächenfaktor (size_weighting)
+poi_model: ground_floor
 search_radius_m: 2000
 # Z1 = 1A-Lage, Z2 = 1B-Lage, Z3 = 2R-Lage (Nebenlage)
 h3_resolution: 11              # Ø 2150 m² je Zelle ≈ Mindestgröße der 1A-Lage
 # Glättung in Metern (stadt- und auflösungsunabhängig); k und σ in Zellen werden daraus berechnet
-smoothing: {radius_m: 100, sigma_m: 40}
+# radius_m 50 ≙ k = 1 bei Res. 11 (Zellabstand ≈ 50 m); vorher 100 m (k = 2)
+smoothing: {radius_m: 50, sigma_m: 40}
 classification: peak_share     # peak_share | jenks | quantile | equal_area
 # peak_share: Zelle gehört zur Klasse, wenn ihre Dichte ≥ Anteil × Spitzenwert der Stadt ist.
 # Gleiche Regel in jeder Stadt → Zonen sind über Städte hinweg vergleichbar abgegrenzt.
 peak_share: [0.5, 0.25, 0.1]   # 1A, 1B, 2R
 min_zone_m2: {Z1: 2000}        # Untergrenze 1A-Lage (harte Prüfung)
+# Höchstfläche je Zone (Z1, Z2, Z3): größere Zonen auf die dichtesten zusammenhängenden Zellen kürzen,
+# abgeschnittene Zellen gehen an die nächste Zone. Gilt nicht für equal_area (Flächen dort fest vorgegeben).
+max_area_ha: [6, 10, 20]
 quantiles: [0.5, 0.75, 0.9]
 equal_area_ha: [10, 20, 30]    # Z1, Z1+Z2, Z1+Z2+Z3 (kumulativ)
 closing_buffer_m: 10           # < halbe Zellbreite (Res. 11 ≈ 50 m), sonst werden Nachbarlücken zugeschlossen
@@ -171,3 +179,36 @@ qa:
   min_iou: 0.7
   plausibility:                 # Z1 muss diese OSM-Objekte (Name) schneiden
     "Heilbronn, Germany": ["Fleiner Straße", "Sülmerstraße", "Kaiserstraße", "Marktplatz"]
+
+# --- Erdgeschoss-POIs (poi_model: ground_floor) ---
+ground_floor_categories:
+  retail:
+    shop: {exclude: [vacant]}
+    amenity: [pharmacy]
+  gastro:
+    amenity: [restaurant, cafe, fast_food, bar, pub, ice_cream, biergarten]
+  service:
+    amenity: [bank]
+
+# --- Street-Modus: Lagen über Straßenabschnitte ---
+street:
+  segment_length_m: 50
+  snap_max_dist_m: 30
+  buffer_m: 20
+  smoothing_neighbors: 1
+  brand_weight: 1.75
+  thresholds:            # gewichtete Betriebe je 100 m Straßenfront
+    lage_1a: {min_density: 8, min_brand_share: 0.40}
+    lage_1b: {min_density: 5}
+    lage_2:  {min_density: 2}
+  max_gap_segments: 1
+  min_hole_ha: 0.2
+  target_ranges_km: {lage_1a: [0.6, 1.2], lage_1b: [1.0, 2.0], lage_2: [2.0, 4.0]}
+  target_ranges_ha: {lage_1a: [3, 6], lage_1b: [5, 10], lage_2: [10, 20]}
+  auto_calibrate: false
+  calibration_iterations: 40
+  highway: [pedestrian, living_street, residential, unclassified, tertiary, secondary, primary]
+  highway_named_only: [footway, path]      # nur mit name-Tag
+  touch_tolerance_m: 0.5                   # Zusammenhang: Segmente berühren sich (Endpunkt oder Kreuzung)
+  plausibility:
+    "Heilbronn, Germany": ["Fleiner Straße", "Sülmerstraße", "Kaiserstraße"]

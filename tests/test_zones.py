@@ -2,27 +2,28 @@ import geopandas as gpd
 import numpy as np
 import pytest
 import yaml
-from shapely.geometry import Point
+from shapely.geometry import LineString, Point
 
 import pandas as pd
 
 from zones.cli import build_zones
 from zones.pois import size_factor
-from zones.qa import run_checks
+from zones.qa import run_checks, street_checks
+from zones.street import run_street
 
 CFG = yaml.safe_load(open("config.yaml", encoding="utf-8"))
 CENTER = (515000.0, 5444000.0)  # ~Heilbronn in EPSG:25832
 
 
 def synthetic():
-    """Dichter Cluster (300 POIs, r=150 m) im Zentrum, schwacher Cluster (40 POIs, r=300 m) 1 km östlich, Streuung."""
+    """Dichter Cluster (600 POIs, r=300 m) im Zentrum, schwacher Cluster (40 POIs, r=300 m) 1 km östlich, Streuung."""
     rng = np.random.default_rng(0)
 
     def cluster(cx, cy, n, r):
         a, d = rng.uniform(0, 2 * np.pi, n), r * np.sqrt(rng.uniform(0, 1, n))
         return [Point(cx + di * np.cos(ai), cy + di * np.sin(ai)) for ai, di in zip(a, d)]
 
-    pts = cluster(*CENTER, 300, 150) + cluster(CENTER[0] + 1000, CENTER[1], 40, 300) + cluster(*CENTER, 80, 1900)
+    pts = cluster(*CENTER, 600, 300) + cluster(CENTER[0] + 1000, CENTER[1], 40, 300) + cluster(*CENTER, 80, 1900)
     pois = gpd.GeoDataFrame({"category": ["retail"] * len(pts), "weight": 1.0}, geometry=pts, crs=CFG["crs_metric"])
     return pois, Point(CENTER).buffer(CFG["search_radius_m"])
 
@@ -44,7 +45,8 @@ def test_equal_area_targets():
     cell_ha = res["cells"]["area_ha"].mean()
     t = CFG["equal_area_ha"]
     target = [t[0], t[1] - t[0], t[2] - t[1]]
-    areas = (res["zones"].area / 1e4).tolist()
+    # Zellebene: Polygon-Nachbearbeitung (Löcher < min_hole_ha füllen) liegt bei Res. 11 über einer Zellfläche
+    areas = res["cells"].groupby("zone")["area_ha"].sum().reindex([1, 2, 3]).tolist()
     for a, tg in zip(areas, target):
         assert abs(a - tg) <= cell_ha, (areas, target, cell_ha)
 
@@ -65,3 +67,48 @@ def test_peak_share_min_area():
     pois, aoi = synthetic()
     zones = build_zones(pois, aoi, CFG, "peak_share")["zones"]
     assert zones.area.iloc[0] >= CFG["min_zone_m2"]["Z1"]
+
+
+def test_max_area_limits_zones():
+    pois, aoi = synthetic()
+    cfg = {**CFG, "max_area_ha": [1.0, 2.0, 3.0]}
+    cells = build_zones(pois, aoi, cfg, "peak_share")["cells"]
+    areas = cells.groupby("zone")["area_ha"].sum()
+    for z, lim in zip((1, 2, 3), cfg["max_area_ha"]):
+        assert 0 < areas.get(z, 0) <= lim
+
+
+def synthetic_street():
+    """600 m gerade Straße: 0–300 m dichter Besatz (10 je 100 m, jeder zweite Filialist), 300–600 m schwach (3 je 100 m)."""
+    x0, y0 = CENTER
+    streets = gpd.GeoDataFrame({"name": ["Teststraße"], "highway": ["pedestrian"]},
+                               geometry=[LineString([(x0, y0), (x0 + 600, y0)])], crs=CFG["crs_metric"])
+    xs = list(np.arange(5, 300, 10)) + list(np.arange(310, 600, 100 / 3))
+    chain = [x < 300 and i % 2 == 0 for i, x in enumerate(xs)]
+    pois = gpd.GeoDataFrame({"category": "retail", "chain": chain,
+                             "weight": [CFG["street"]["brand_weight"] if c else 1.0 for c in chain]},
+                            geometry=[Point(x0 + x, y0 + (10 if i % 2 else -10)) for i, x in enumerate(xs)],
+                            crs=CFG["crs_metric"])
+    return streets, pois
+
+
+def test_street_dense_section_is_1a():
+    streets, pois = synthetic_street()
+    res = run_street(streets, pois, CFG, auto_calibrate=False)
+    seg, zones = res["segments"], res["zones"]
+    L = CFG["street"]["segment_length_m"]
+    len_1a = seg.loc[seg["lage"] == "lage_1a", "length_m"].sum()
+    assert abs(len_1a - 300) <= L
+    assert (seg.loc[seg["lage"] == "lage_1a"].geometry.centroid.x - CENTER[0] < 300 + L).all()
+    assert list(zones["lage"]) == ["lage_1a", "lage_1b", "lage_2"] and not zones.geometry.is_empty.any()
+    checks = street_checks(res, CFG)
+    assert all(c["ok"] for c in checks if c["hard"]), checks
+
+
+def test_street_calibration_hits_target_length():
+    streets, pois = synthetic_street()
+    cfg = {**CFG, "street": {**CFG["street"], "target_ranges_km": {"lage_1a": [0.1, 0.1], "lage_1b": [0.1, 0.1],
+                                                                    "lage_2": [0.1, 0.1]}}}
+    res = run_street(streets, pois, cfg, auto_calibrate=True)
+    km = res["zones"].set_index("lage")["length_km"]
+    assert abs(km["lage_1a"] - 0.1) <= CFG["street"]["segment_length_m"] / 1000
