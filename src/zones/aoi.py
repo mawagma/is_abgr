@@ -3,6 +3,8 @@ import geopandas as gpd
 import osmnx as ox
 from shapely.geometry import Point
 
+from .pois import features
+
 
 def build_aoi(cfg):
     """Suchraum = Kreis um place=city-Knoten, verschnitten mit der Verwaltungsgrenze (metrisch)."""
@@ -11,11 +13,11 @@ def build_aoi(cfg):
     name = city.split(",")[0].strip()
     center, source = None, "place=city"
     try:
-        nodes = ox.features_from_polygon(gpd.GeoSeries([boundary], crs=crs).to_crs(4326).iloc[0], {"place": "city"})
+        nodes = features(gpd.GeoSeries([boundary], crs=crs).to_crs(4326).iloc[0], {"place": "city"}, cfg)
         if "name" in nodes:
             nodes = nodes[(nodes.geom_type == "Point") & (nodes["name"] == name)]
             if len(nodes):
-                center = nodes.to_crs(crs).geometry.iloc[0]
+                center = nodes.geometry.iloc[0]
     except ox._errors.InsufficientResponseError:
         pass
     if center is None:

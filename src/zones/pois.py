@@ -5,6 +5,7 @@ import geopandas as gpd
 import numpy as np
 import osmnx as ox
 import pandas as pd
+import requests
 
 
 def configure_osmnx(cfg):
@@ -47,16 +48,21 @@ def fetch_osm(aoi_4326, cfg):
 
 
 def features(polygon_4326, tags, cfg):
-    """ox.features_from_polygon mit Wiederholung bei 5xx; Ergebnis metrisch."""
-    for attempt in range(cfg["overpass_retries"] + 1):
-        try:
-            raw = ox.features_from_polygon(polygon_4326, tags).reset_index()
-            return raw.to_crs(cfg["crs_metric"])
-        except ox._errors.ResponseStatusCodeError as e:  # öffentliche Overpass-Server liefern sporadisch 5xx
-            if attempt == cfg["overpass_retries"]:
-                raise
-            print(f"Overpass-Fehler ({str(e)[:60]}…), neuer Versuch in {cfg['overpass_retry_wait_s']} s")
-            time.sleep(cfg["overpass_retry_wait_s"])
+    """ox.features_from_polygon mit Wiederholung bei 5xx/Netzfehlern, reihum über die Spiegel; Ergebnis metrisch."""
+    urls = [cfg["overpass_url"]] + cfg.get("overpass_fallback_urls", [])
+    try:
+        for attempt in range(cfg["overpass_retries"] + 1):
+            for url in urls:
+                ox.settings.overpass_url = url
+                try:
+                    return ox.features_from_polygon(polygon_4326, tags).reset_index().to_crs(cfg["crs_metric"])
+                except (ox._errors.ResponseStatusCodeError, requests.exceptions.RequestException) as e:
+                    print(f"Overpass-Fehler {url} ({str(e)[:60]}…)", flush=True)
+            if attempt < cfg["overpass_retries"]:
+                time.sleep(cfg["overpass_retry_wait_s"])
+        raise RuntimeError("Overpass: alle Spiegel und Wiederholungen fehlgeschlagen")
+    finally:
+        ox.settings.overpass_url = cfg["overpass_url"]
 
 
 def label(raw, rule_dict):
