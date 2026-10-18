@@ -1,0 +1,19 @@
+
+Heilbronn, Germany – street, auto_calibrate=True, seed=strongest_chain (params_hash abd2cc82ea)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                                                                                                                                                               street_names
+lage_1a      0.899     2.91         57              8.84        0.526                                                                                                                                                                                                                                   Am Wollhaus; Deutschhofstraße; Fleiner Straße; Götzenturmstraße; Kiliansplatz; Kilianstraße; Klarastraße
+lage_1b      2.800     9.52        158              6.31        0.158       Allee; Am Kieselmarkt; Berliner Platz; Deutschhofstraße; Eichgasse; Falkenstraße; Fischergasse; Gerberstraße; Gustav-Binder-Straße; Hämmerlinggasse; Kaiserstraße; Karlstraße; Kasernengasse; Kilianstraße; Kirchbrunnenstraße; Kramstraße; Lohtorstraße; Marktplatz; Rathausgasse; Sonnengasse; Sülmerstraße; Turmstraße; Windgasse
+ lage_2      3.024     9.21         84              3.30        0.250 Allee; Allerheiligenstraße; Biedermanngasse; Fischergasse; Gemmingergasse; Gerberstraße; Große Bahngasse; Jakobgasse; Kaiserstraße; Karlstraße; Lammgasse; Lohtorstraße; Marktplatz; Metzgergasse; Obere Neckarstraße; Schellengasse; Schwibbogengasse; Schöntaler Gasse; Siebeneichgasse; Titotstraße; Untere Neckarstraße; Wolfganggasse
+Schwellen: {'lage_1a': {'min_density': 3.61, 'min_brand_share': 0.4}, 'lage_1b': {'min_density': 3.6}, 'lage_2': {'min_density': 1.91}}
+  [OK     ] Genau 3 Lagen, gültig, nicht leer: leer: []
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [OK     ] Dichte 1a > 1b > 2: 8.84 > 6.31 > 3.3 je 100 m
+  [OK     ] lage_1a: Länge 0.6–1.2 km: 0.899 km
+  [WARNUNG] lage_1a: Fläche 3–6 ha: 2.91 ha → buffer_m (20) vergrößern
+  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 2.8 km → lage_1b.min_density (3.6) erhöhen
+  [OK     ] lage_1b: Fläche 5–10 ha: 9.52 ha
+  [OK     ] lage_2: Länge 2.0–4.0 km: 3.024 km
+  [WARNUNG] lage_2: Fläche 10–20 ha: 9.21 ha → buffer_m (20) vergrößern
+  [OK     ] Plausibilität: 1a enthält „Fleiner Straße“: 335 m in 1a
+  [WARNUNG] Plausibilität: 1a enthält „Sülmerstraße“: 0 m in 1a
+  [WARNUNG] Plausibilität: 1a enthält „Kaiserstraße“: 0 m in 1a

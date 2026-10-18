@@ -135,15 +135,24 @@ def _chain(seeds, ok, adj, gap):
     return comp
 
 
-def classify_segments(seg, adj, th, gap):
-    """lage je Segment ('' = keine) und Liste der Nebenlagen (weitere 1a-Ketten ohne Verbindung zur 1a)."""
+def classify_segments(seg, adj, th, gap, seed="max_density"):
+    """lage je Segment ('' = keine) und Liste der Nebenlagen (weitere 1a-Ketten ohne Verbindung zur 1a).
+    seed: max_density = 1a-Kette mit dem dichtesten Segment; strongest_chain = 1a-Kette mit der größten
+    gewichteten POI-Summe (robust gegen kurze Hotspots, z. B. Mall-Mieter an einer Hintergasse)."""
     d, bs = seg["density"].to_numpy(), seg["brand_share"].to_numpy()
     ok1a = (d >= th["lage_1a"]["min_density"]) & (bs >= th["lage_1a"].get("min_brand_share", 0.0))
     lage = np.full(len(seg), "", dtype=object)
     if not ok1a.any():
         return lage, []
-    seed = int(np.flatnonzero(ok1a)[np.argmax(d[ok1a])])
-    z1 = _chain({seed}, ok1a, adj, gap)
+    if seed == "strongest_chain":
+        w, rest, z1 = seg["poi_w"].to_numpy(), set(np.flatnonzero(ok1a)), set()
+        while rest:
+            c = _chain({rest.pop()}, ok1a, adj, gap)
+            rest -= c
+            if w[list(c)].sum() > w[list(z1)].sum():
+                z1 = c
+    else:
+        z1 = _chain({int(np.flatnonzero(ok1a)[np.argmax(d[ok1a])])}, ok1a, adj, gap)
     ok = d >= th["lage_1b"]["min_density"]
     ok[list(z1)] = True
     z12 = _chain(z1, ok, adj, gap)
@@ -179,7 +188,7 @@ def calibrate(seg, adj, cfg):
         for _ in range(st["calibration_iterations"]):
             mid = (lo + hi) / 2
             th[l]["min_density"] = mid
-            km = lage_lengths_km(seg, classify_segments(seg, adj, th, st["max_gap_segments"])[0])[l]
+            km = lage_lengths_km(seg, classify_segments(seg, adj, th, st["max_gap_segments"], st["seed"])[0])[l]
             if abs(km - target) < best[0]:
                 best = (abs(km - target), mid, km)
             if km > target:
@@ -247,7 +256,7 @@ def run_street(streets, pois, cfg, auto_calibrate=None):
     seg = segment_metrics(seg, pois, nb, cfg)
     auto = st["auto_calibrate"] if auto_calibrate is None else auto_calibrate
     th, log = calibrate(seg, adj, cfg) if auto else (copy.deepcopy(st["thresholds"]), [])
-    lage, neben = classify_segments(seg, adj, th, st["max_gap_segments"])
+    lage, neben = classify_segments(seg, adj, th, st["max_gap_segments"], st["seed"])
     seg["lage"] = lage
     zones = zone_attributes(street_polygons(seg, cfg), seg)
     return {"segments": seg, "pois": pois, "zones": zones, "nebenlagen": nebenlagen_gdf(seg, neben),

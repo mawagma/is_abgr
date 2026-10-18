@@ -172,8 +172,8 @@ def write_street(out_dir, stem, slug_, res, grid_zones, cfg, checks, meta):
 def write_street_map(path, res):
     ll = lambda g: g.to_crs(4326)
     z = ll(res["zones"])
-    c = z.union_all().centroid
-    m = folium.Map(location=[c.y, c.x], zoom_start=16, tiles=None, control_scale=True)
+    x0, y0, x1, y1 = z.total_bounds  # union_all kann an reprojizierten Ringen scheitern
+    m = folium.Map(location=[(y0 + y1) / 2, (x0 + x1) / 2], zoom_start=16, tiles=None, control_scale=True)
     folium.TileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", attr=ATTR, name="OSM").add_to(m)
     folium.GeoJson(z[["lage", "length_km", "area_ha", "poi_count", "density_per_100m", "brand_share", "geometry"]],
                    name="Lagen (Polygone)", style_function=lambda f: {
@@ -222,7 +222,8 @@ def write_compare_report(path, res, grid_zones, cfg, checks, meta):
         f"# Lagevergleich {cfg['city']}: Rastermodus gegen Street-Modus", "",
         f"Datenquelle: {ATTR} (ODbL). OSM-Datenstand {meta['osm_timestamp']}, Lauf {meta['run_at']}, "
         f"params_hash `{meta['params_hash']}`.  ",
-        f"Street-Modus: auto_calibrate = **{res['auto_calibrate']}**. Rastermodus: `{cfg['classification']}`, "
+        f"Street-Modus: auto_calibrate = **{res['auto_calibrate']}**, seed = **{st['seed']}**. "
+        f"Overrides: {', '.join(meta['overrides']) or 'keine'}. Rastermodus: `{cfg['classification']}`, "
         f"Res. {cfg['h3_resolution']}, max_area_ha {cfg.get('max_area_ha')}.", "",
         "## Vergleich je Lage", "",
         "Gleiche Zählweise für beide Modi: Straßenlänge = Länge der Straßensegmente im Polygon, POIs = "
@@ -236,7 +237,8 @@ def write_compare_report(path, res, grid_zones, cfg, checks, meta):
         _md_table(th.fillna("–")), "",
     ]
     if res["calibration"]:
-        lines += ["Automatisch kalibriert (Bisektion auf die Mitte von target_ranges_km):", "",
+        lines += ["Automatisch kalibriert (Bisektion auf die Mitte von target_ranges_km; Schwellen bleiben absteigend, "
+                  "die Obergrenze je Lage ist die Schwelle der Lage darüber):", "",
                   _md_table(pd.DataFrame(res["calibration"])), ""]
     neben = res["nebenlagen"]
     lines += ["## Nebenlagen (erfüllen die 1a-Schwelle, ohne Verbindung zur 1a)", "",

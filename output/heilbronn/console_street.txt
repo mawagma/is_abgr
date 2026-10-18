@@ -1,0 +1,19 @@
+
+Heilbronn, Germany – street, auto_calibrate=False, seed=max_density (params_hash 94f0bedfd2)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           street_names
+lage_1a       0.06     0.24          7             19.24        0.857                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           Metzgergasse
+lage_1b       0.00     0.00          0              0.00        0.000                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+ lage_2       6.57    20.94        287              5.17        0.244 Allee; Allerheiligenstraße; Am Kieselmarkt; Am Wollhaus; Berliner Platz; Biedermanngasse; Deutschhofstraße; Eichgasse; Falkenstraße; Fischergasse; Fleiner Straße; Gemmingergasse; Gerberstraße; Große Bahngasse; Gustav-Binder-Straße; Götzenturmstraße; Hämmerlinggasse; Jakobgasse; Kaiserstraße; Karlstraße; Kasernengasse; Kiliansplatz; Kilianstraße; Kirchbrunnenstraße; Klarastraße; Kramstraße; Lammgasse; Lohtorstraße; Marktplatz; Obere Neckarstraße; Rathausgasse; Schellengasse; Schwibbogengasse; Schöntaler Gasse; Siebeneichgasse; Sonnengasse; Sülmerstraße; Titotstraße; Turmstraße; Untere Neckarstraße; Windgasse
+Schwellen: {'lage_1a': {'min_density': 8, 'min_brand_share': 0.4}, 'lage_1b': {'min_density': 5}, 'lage_2': {'min_density': 2}}
+  [FEHLER ] Genau 3 Lagen, gültig, nicht leer: leer: ['lage_1b']
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [FEHLER ] Dichte 1a > 1b > 2: 19.24 > 0.0 > 5.17 je 100 m
+  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 0.06 km → lage_1a.min_density (8) senken oder lage_1a.min_brand_share (0.4) senken
+  [WARNUNG] lage_1a: Fläche 3–6 ha: 0.24 ha → folgt der Länge (siehe oben)
+  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.0 km → lage_1b.min_density (5) senken
+  [WARNUNG] lage_1b: Fläche 5–10 ha: 0.0 ha → folgt der Länge (siehe oben)
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 6.57 km → lage_2.min_density (2) erhöhen
+  [WARNUNG] lage_2: Fläche 10–20 ha: 20.94 ha → folgt der Länge (siehe oben)
+  [WARNUNG] Plausibilität: 1a enthält „Fleiner Straße“: 0 m in 1a
+  [WARNUNG] Plausibilität: 1a enthält „Sülmerstraße“: 0 m in 1a
+  [WARNUNG] Plausibilität: 1a enthält „Kaiserstraße“: 0 m in 1a
