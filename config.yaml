@@ -130,8 +130,8 @@ crs_metric: "EPSG:25832"
 crs_export: "EPSG:4326"
 cache_dir: cache
 output_dir: output
-# overpass-api.de setzt Verbindungen aus dieser Umgebung zurück; kumi.systems ist ein offizieller Spiegel
-overpass_url: "https://overpass.kumi.systems/api"
+# overpass-api.de ist aus dieser Umgebung gesperrt; kumi.systems lieferte am 18.10.2026 dauerhaft HTTP 500
+overpass_url: "https://overpass.private.coffee/api"
 requests_timeout_s: 300
 overpass_retries: 20
 overpass_retry_wait_s: 30
