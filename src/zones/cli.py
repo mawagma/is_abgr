@@ -1,0 +1,108 @@
+"""python -m zones.cli --city "Heilbronn, Germany" [--classification jenks|quantile|equal_area]"""
+import argparse
+import hashlib
+import json
+import sys
+import unicodedata
+from datetime import datetime, timezone
+from pathlib import Path
+
+import geopandas as gpd
+import osmnx as ox
+import pandas as pd
+import yaml
+
+from .aoi import build_aoi
+from .classify import assign_zones, classify
+from .export import write_all, zone_attributes
+from .grid import build_grid
+from .polygons import zone_polygons
+from .pois import categorize, context, fetch_osm
+from .qa import run_checks
+
+
+def build_zones(pois, aoi, cfg, method):
+    """Kern-Pipeline ohne Netz: Raster → Glättung → Klassen → Zusammenhang → Polygone."""
+    sm = cfg["smoothing"]
+    cells = build_grid(aoi, pois, cfg, cfg["h3_resolution"], sm["k"], sm["sigma"])
+    cells, islands = assign_zones(classify(cells, cfg, method))
+    return {"cells": cells, "islands": islands, "zones": zone_polygons(cells, cfg)}
+
+
+def slug(city):
+    s = city.split(",")[0].strip().lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+    return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().replace(" ", "_")
+
+
+def osm_timestamps(cache_dir):
+    """(Datenstand, Abrufzeit) aus den Overpass-Antworten im osmnx-Cache.
+    shortcut: nimmt das Maximum über alle Cache-Dateien, auch anderer Städte; bei gemischtem Cache je Stadt filtern."""
+    base, mtimes = [], []
+    for f in Path(cache_dir).glob("*.json"):
+        try:
+            d = json.loads(f.read_text())
+        except (ValueError, OSError):
+            continue
+        if isinstance(d, dict) and "osm3s" in d:
+            base.append(d["osm3s"].get("timestamp_osm_base", ""))
+            mtimes.append(f.stat().st_mtime)
+    fetched = datetime.fromtimestamp(max(mtimes), timezone.utc).isoformat(timespec="seconds") if mtimes else "?"
+    return (max(base) if base else "?"), fetched
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--config", default="config.yaml")
+    ap.add_argument("--city")
+    ap.add_argument("--classification", choices=["jenks", "quantile", "equal_area"])
+    a = ap.parse_args(argv)
+    cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8"))
+    overrides = [f"{k}={v!r}" for k, v in (("city", a.city), ("classification", a.classification))
+                 if v and v != cfg[k]]
+    cfg.update({k: v for k, v in (("city", a.city), ("classification", a.classification)) if v})
+    method = cfg["classification"]
+
+    ox.settings.use_cache = True
+    ox.settings.cache_folder = cfg["cache_dir"]
+    ox.settings.overpass_url = cfg["overpass_url"]
+    ox.settings.requests_timeout = cfg["requests_timeout_s"]
+
+    crs = cfg["crs_metric"]
+    aoi, center, center_src = build_aoi(cfg)
+    raw = fetch_osm(gpd.GeoSeries([aoi], crs=crs).to_crs(4326).iloc[0], cfg)
+    pois = categorize(raw, cfg)
+    pois = pois[pois.within(aoi)].reset_index(drop=True)  # Flächen am Rand: repräsentativer Punkt außerhalb
+    res = build_zones(pois, aoi, cfg, method)
+
+    sens = []
+    for ov in cfg["qa"]["sensitivity"]:
+        label = ", ".join(f"{k}={v}" for k, v in ov.items())
+        sens.append((label, build_zones(pois, aoi, {**cfg, **ov}, method)["zones"].geometry.iloc[0]))
+    plaus = {}
+    if "name" in raw:
+        named = raw[raw.filter(["highway", "place", "area:highway"]).notna().any(axis=1)]
+        plaus = {n: named[named["name"] == n].geometry for n in cfg["qa"]["plausibility"].get(cfg["city"], [])}
+
+    params_hash = hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:10]
+    osm_ts, fetched = osm_timestamps(cfg["cache_dir"])
+    res["zones"] = zone_attributes(res["zones"], pois, cfg, method, params_hash, osm_ts)
+    checks = run_checks(res["zones"], cfg, sens, plaus)
+
+    c_ll = gpd.GeoSeries([center], crs=crs).to_crs(4326).iloc[0]
+    meta = {"method": method, "params_hash": params_hash, "osm_timestamp": osm_ts, "fetched_at": fetched,
+            "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "overrides": overrides,
+            "center_source": center_src, "center_ll": f"{c_ll.y:.5f}, {c_ll.x:.5f}"}
+    res.update(pois=pois, context=context(raw, cfg), aoi=aoi)
+    s = slug(cfg["city"])
+    write_all(Path(cfg["output_dir"]) / s, f"{s}_{method}", res, cfg, checks, meta)
+
+    cols = ["zone_id", "area_ha", "poi_count", "poi_density_ha", "compactness"]
+    print(f"\n{cfg['city']} – {method} (params_hash {params_hash}, OSM {osm_ts})")
+    print(pd.DataFrame(res["zones"][cols]).to_string(index=False))
+    for c in checks:
+        print(f"  [{c['status']:7}] {c['check']}: {c['detail']}")
+    return 1 if any(c["hard"] and not c["ok"] for c in checks) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

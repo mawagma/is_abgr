@@ -1,0 +1,21 @@
+
+Heilbronn, Germany – equal_area (params_hash 32858996eb, OSM 2026-07-24T11:04:51Z)
+zone_id  area_ha  poi_count  poi_density_ha  compactness
+     Z1     9.98        175           17.53        0.601
+     Z2     9.90        116           11.72        0.135
+     Z3     9.89         60            6.07        0.076
+  [OK     ] Genau 3 Zonen, gültig, nicht leer: 3 Zonen; leer: []
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [OK     ] POI-Dichte Z1 > Z2 > Z3: 17.53 > 11.72 > 6.07 POI/ha
+  [OK     ] Z1: ein Polygon: Polygon, 1 Teil(e)
+  [OK     ] Z2: ein Polygon: Polygon, 1 Teil(e)
+  [WARNUNG] Z3: ein Polygon: MultiPolygon, 2 Teil(e)
+  [OK     ] Z1: Polsby-Popper ≥ 0.2: 0.601
+  [WARNUNG] Z2: Polsby-Popper ≥ 0.2: 0.135
+  [WARNUNG] Z3: Polsby-Popper ≥ 0.2: 0.076
+  [WARNUNG] Sensitivität h3_resolution=11: IoU(Z1) ≥ 0.7: IoU = 0.628
+  [OK     ] Sensitivität smoothing={'k': 2, 'sigma': 1.5}: IoU(Z1) ≥ 0.7: IoU = 0.753
+  [OK     ] Plausibilität: Z1 schneidet „Fleiner Straße“: 3 OSM-Objekt(e) mit diesem Namen
+  [OK     ] Plausibilität: Z1 schneidet „Sülmerstraße“: 7 OSM-Objekt(e) mit diesem Namen
+  [OK     ] Plausibilität: Z1 schneidet „Kaiserstraße“: 13 OSM-Objekt(e) mit diesem Namen
+  [OK     ] Plausibilität: Z1 schneidet „Marktplatz“: 4 OSM-Objekt(e) mit diesem Namen

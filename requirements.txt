@@ -1,0 +1,11 @@
+osmnx>=2.0
+geopandas
+shapely>=2
+pyproj
+h3>=4
+numpy
+pandas
+mapclassify
+folium
+pyyaml
+pytest

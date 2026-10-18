@@ -1,0 +1,64 @@
+# Startwerte laut CLAUDE.md
+city: "Heilbronn, Germany"
+search_radius_m: 2000
+h3_resolution: 10
+smoothing: {k: 2, sigma: 1.0}
+classification: jenks          # jenks | quantile | equal_area
+quantiles: [0.5, 0.75, 0.9]
+equal_area_ha: [10, 20, 30]    # Z1, Z1+Z2, Z1+Z2+Z3 (kumulativ)
+closing_buffer_m: 25
+min_hole_ha: 0.5
+simplify_m: 5
+weights:
+  retail: 1.0
+  gastro: 1.0
+  service: 0.5
+  culture_leisure: 0.7
+  health: 0.5
+
+# --- Ergänzungen (in CLAUDE.md beschrieben, aber ohne Startwert) ---
+crs_metric: "EPSG:25832"
+crs_export: "EPSG:4326"
+cache_dir: cache
+output_dir: output
+# overpass-api.de setzt Verbindungen aus dieser Umgebung zurück; kumi.systems ist ein offizieller Spiegel
+overpass_url: "https://overpass.kumi.systems/api"
+requests_timeout_s: 300
+overpass_retries: 20
+overpass_retry_wait_s: 30
+random_seed: 42               # NaturalBreaks (k-means) ist zufallsinitialisiert
+dedupe_m: 15
+min_part_m2: 500           # Splitter aus getrenntem Vereinfachen verwerfen (≪ Zellfläche Res. 10 ≈ 15 000 m²)
+
+# Kategorien in Prioritätsreihenfolge (erste Übereinstimmung gewinnt).
+# Regel: true = jeder Wert, Liste = nur diese Werte, {exclude: [...]} = jeder Wert außer diesen
+categories:
+  retail:
+    shop: {exclude: [vacant]}
+  gastro:
+    amenity: [restaurant, cafe, fast_food, bar, pub, ice_cream, biergarten]
+  service:
+    amenity: [bank, pharmacy, post_office]
+    craft: true
+    office: true
+  culture_leisure:
+    tourism: [museum, gallery, attraction]
+    amenity: [cinema, theatre, library, arts_centre]
+    leisure: {exclude: [park, garden, pitch, playground]}
+  health:
+    healthcare: true
+    amenity: [doctors, dentist]
+exclude_prefixes: ["disused:", "abandoned:"]
+
+# nur Kontext/Karte
+context:
+  pedestrian: {highway: [pedestrian, living_street]}
+  transit_stop: {highway: [bus_stop], public_transport: [platform, stop_position, station], railway: [tram_stop, station, halt]}
+
+qa:
+  max_overlap_m2: 1.0
+  min_compactness: 0.2
+  sensitivity: [{h3_resolution: 11}, {smoothing: {k: 2, sigma: 1.5}}]
+  min_iou: 0.7
+  plausibility:                 # Z1 muss diese OSM-Objekte (Name) schneiden
+    "Heilbronn, Germany": ["Fleiner Straße", "Sülmerstraße", "Kaiserstraße", "Marktplatz"]

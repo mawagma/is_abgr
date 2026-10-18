@@ -1,0 +1,21 @@
+
+Heilbronn, Germany – quantile (params_hash c75b5795e7, OSM 2026-07-24T11:04:51Z)
+zone_id  area_ha  poi_count  poi_density_ha  compactness
+     Z1   121.70        665            5.46        0.324
+     Z2   159.71        228            1.43        0.046
+     Z3   289.04        240            0.83        0.025
+  [OK     ] Genau 3 Zonen, gültig, nicht leer: 3 Zonen; leer: []
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [OK     ] POI-Dichte Z1 > Z2 > Z3: 5.46 > 1.43 > 0.83 POI/ha
+  [OK     ] Z1: ein Polygon: Polygon, 1 Teil(e)
+  [OK     ] Z2: ein Polygon: Polygon, 1 Teil(e)
+  [WARNUNG] Z3: ein Polygon: MultiPolygon, 3 Teil(e)
+  [OK     ] Z1: Polsby-Popper ≥ 0.2: 0.324
+  [WARNUNG] Z2: Polsby-Popper ≥ 0.2: 0.046
+  [WARNUNG] Z3: Polsby-Popper ≥ 0.2: 0.025
+  [WARNUNG] Sensitivität h3_resolution=11: IoU(Z1) ≥ 0.7: IoU = 0.514
+  [OK     ] Sensitivität smoothing={'k': 2, 'sigma': 1.5}: IoU(Z1) ≥ 0.7: IoU = 0.881
+  [OK     ] Plausibilität: Z1 schneidet „Fleiner Straße“: 3 OSM-Objekt(e) mit diesem Namen
+  [OK     ] Plausibilität: Z1 schneidet „Sülmerstraße“: 7 OSM-Objekt(e) mit diesem Namen
+  [OK     ] Plausibilität: Z1 schneidet „Kaiserstraße“: 13 OSM-Objekt(e) mit diesem Namen
+  [OK     ] Plausibilität: Z1 schneidet „Marktplatz“: 4 OSM-Objekt(e) mit diesem Namen
