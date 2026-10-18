@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import geopandas as gpd
-import osmnx as ox
 import pandas as pd
 import yaml
 
@@ -17,14 +16,14 @@ from .classify import assign_zones, classify
 from .export import write_all, zone_attributes
 from .grid import build_grid
 from .polygons import zone_polygons
-from .pois import categorize, context, fetch_osm
+from .pois import categorize, configure_osmnx, context, fetch_osm
 from .qa import run_checks
 
 
 def build_zones(pois, aoi, cfg, method):
     """Kern-Pipeline ohne Netz: Raster → Glättung → Klassen → Zusammenhang → Polygone."""
     sm = cfg["smoothing"]
-    cells = build_grid(aoi, pois, cfg, cfg["h3_resolution"], sm["k"], sm["sigma"])
+    cells = build_grid(aoi, pois, cfg, cfg["h3_resolution"], sm["radius_m"], sm["sigma_m"])
     cells, islands = assign_zones(classify(cells, cfg, method))
     return {"cells": cells, "islands": islands, "zones": zone_polygons(cells, cfg)}
 
@@ -54,7 +53,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--config", default="config.yaml")
     ap.add_argument("--city")
-    ap.add_argument("--classification", choices=["jenks", "quantile", "equal_area"])
+    ap.add_argument("--classification", choices=["peak_share", "jenks", "quantile", "equal_area"])
     a = ap.parse_args(argv)
     cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8"))
     overrides = [f"{k}={v!r}" for k, v in (("city", a.city), ("classification", a.classification))
@@ -62,10 +61,7 @@ def main(argv=None):
     cfg.update({k: v for k, v in (("city", a.city), ("classification", a.classification)) if v})
     method = cfg["classification"]
 
-    ox.settings.use_cache = True
-    ox.settings.cache_folder = cfg["cache_dir"]
-    ox.settings.overpass_url = cfg["overpass_url"]
-    ox.settings.requests_timeout = cfg["requests_timeout_s"]
+    configure_osmnx(cfg)
 
     crs = cfg["crs_metric"]
     aoi, center, center_src = build_aoi(cfg)
@@ -85,18 +81,21 @@ def main(argv=None):
 
     params_hash = hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:10]
     osm_ts, fetched = osm_timestamps(cfg["cache_dir"])
-    res["zones"] = zone_attributes(res["zones"], pois, cfg, method, params_hash, osm_ts)
+    ctx = context(raw, cfg)
+    ped = ctx[(ctx["kind"] == "pedestrian") & ctx.geom_type.isin(["LineString", "MultiLineString"])].geometry
+    res["zones"] = zone_attributes(res["zones"], pois, cfg, method, params_hash, osm_ts, ped)
     checks = run_checks(res["zones"], cfg, sens, plaus)
 
     c_ll = gpd.GeoSeries([center], crs=crs).to_crs(4326).iloc[0]
     meta = {"method": method, "params_hash": params_hash, "osm_timestamp": osm_ts, "fetched_at": fetched,
             "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "overrides": overrides,
             "center_source": center_src, "center_ll": f"{c_ll.y:.5f}, {c_ll.x:.5f}"}
-    res.update(pois=pois, context=context(raw, cfg), aoi=aoi)
+    res.update(pois=pois, context=ctx, aoi=aoi)
     s = slug(cfg["city"])
     write_all(Path(cfg["output_dir"]) / s, f"{s}_{method}", res, cfg, checks, meta)
 
-    cols = ["zone_id", "area_ha", "poi_count", "poi_density_ha", "compactness"]
+    cols = ["zone_id", "area_ha", "poi_count", "poi_density_ha", "weighted_density_ha", "chain_share", "ped_street_m",
+            "compactness"]
     print(f"\n{cfg['city']} – {method} (params_hash {params_hash}, OSM {osm_ts})")
     print(pd.DataFrame(res["zones"][cols]).to_string(index=False))
     for c in checks:

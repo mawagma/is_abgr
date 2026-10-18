@@ -7,6 +7,14 @@ import osmnx as ox
 import pandas as pd
 
 
+def configure_osmnx(cfg):
+    """Cache-Schlüssel hängen an der Abfrage (inkl. Timeout) → Einstellungen immer gemeinsam setzen."""
+    ox.settings.use_cache = True
+    ox.settings.cache_folder = cfg["cache_dir"]
+    ox.settings.overpass_url = cfg["overpass_url"]
+    ox.settings.requests_timeout = cfg["requests_timeout_s"]
+
+
 def _rule_mask(df, key, rule):
     if key not in df:
         return pd.Series(False, index=df.index)
@@ -67,8 +75,24 @@ def categorize(raw, cfg):
     pois = raw.loc[cat.notna(), keep + ["geometry"]].copy()
     pois["category"] = cat[cat.notna()]
     pois["geometry"] = pois.geometry.representative_point()
-    pois["weight"] = pois["category"].map(cfg["weights"]).astype(float)
+    pois["chain"] = (raw.loc[cat.notna(), "brand"].notna() if "brand" in raw else False) & (pois["category"] == "retail")
+    pois["size_factor"] = size_factor(raw.loc[cat.notna()], pois["category"], cfg["size_weighting"])
+    pois["weight"] = pois["category"].map(cfg["weights"]).astype(float) * pois["size_factor"]
     return dedupe(pois.reset_index(drop=True), cfg["dedupe_m"])
+
+
+def size_factor(raw, category, sw):
+    """Zusatzgewicht Einzelhandel nach typischer Verkaufsfläche (brand → name → shop-Typ) und Filialist-Bonus."""
+    f = pd.Series(1.0, index=raw.index)
+    if not sw["enabled"]:
+        return f
+    col = lambda c: raw[c] if c in raw else pd.Series(None, index=raw.index, dtype=object)
+    area = (col("brand").map(sw["brand_area_m2"]).combine_first(col("name").map(sw["brand_area_m2"]))
+            .combine_first(col("shop").map(sw["shop_area_m2"])).fillna(sw["ref_area_m2"]).astype(float))
+    f = np.clip((area / sw["ref_area_m2"]) ** sw["exponent"], *sw["clip"]) * np.where(
+        col("brand").notna(), sw["chain_factor"], 1.0)
+    f = f.where(~col("shop").isin(sw["not_central"]), sw["not_central_factor"])
+    return f.where(category == "retail", 1.0)
 
 
 def dedupe(pois, dist_m):

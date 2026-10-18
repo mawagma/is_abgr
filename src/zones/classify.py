@@ -17,6 +17,9 @@ def classify(cells, cfg, method):
     elif method == "quantile":
         t = np.quantile(y, cfg["quantiles"])
         cls[pos.to_numpy()] = np.select([y >= t[2], y >= t[1], y >= t[0]], [1, 2, 3], 0)
+    elif method == "peak_share":
+        t = np.asarray(cfg["peak_share"]) * y.max()
+        cls[pos.to_numpy()] = np.select([y >= t[0], y >= t[1], y >= t[2]], [1, 2, 3], 0)
     elif method == "equal_area":
         cls = _equal_area(cells, pos, cfg["equal_area_ha"])
     else:

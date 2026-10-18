@@ -19,6 +19,9 @@ def run_checks(zones, cfg, sens=(), plaus=None):
         f"{len(g)} Zonen; leer: {[z for z, x in zip(zones.zone_id, g) if x.is_empty]}")
     ov = max((a.intersection(b).area for a, b in combinations(g, 2)), default=0.0)
     add(f"Überlappung < {q['max_overlap_m2']} m²", True, ov < q["max_overlap_m2"], f"max. {ov:.4f} m²")
+    for z, m2 in cfg.get("min_zone_m2", {}).items():
+        a = zones.loc[zones["zone_id"] == z].area.sum()
+        add(f"{z}: Fläche ≥ {m2} m²", True, a >= m2, f"{a:.0f} m²")
     if "poi_density_ha" in zones:
         d = zones["poi_density_ha"].round(2).tolist()
         add("POI-Dichte Z1 > Z2 > Z3", True, len(d) == 3 and d[0] > d[1] > d[2], " > ".join(map(str, d)) + " POI/ha")

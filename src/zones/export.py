@@ -13,12 +13,17 @@ CAT_COLORS = {"retail": "#1f77b4", "gastro": "#e377c2", "service": "#7f7f7f", "c
               "health": "#9467bd"}
 
 
-def zone_attributes(zones, pois, cfg, method, params_hash, osm_ts):
+def zone_attributes(zones, pois, cfg, method, params_hash, osm_ts, ped=None):
     z = zones.copy()
     z["area_ha"] = (z.area / 1e4).round(2)
     j = gpd.sjoin(pois, z[["zone_id", "geometry"]], predicate="within")
     z["poi_count"] = z["zone_id"].map(j.groupby("zone_id").size()).fillna(0).astype(int)
     z["poi_density_ha"] = (z["poi_count"] / (z.area / 1e4)).round(2)
+    z["weighted_density_ha"] = (z["zone_id"].map(j.groupby("zone_id")["weight"].sum()).fillna(0) / (z.area / 1e4)).round(2)
+    r = j[j["category"] == "retail"]
+    z["retail_count"] = z["zone_id"].map(r.groupby("zone_id").size()).fillna(0).astype(int)
+    z["chain_share"] = z["zone_id"].map(r.groupby("zone_id")["chain"].mean()).fillna(0).round(3)  # Filialisierungsgrad
+    z["ped_street_m"] = [round(ped.intersection(g).length.sum(), 0) if ped is not None else 0.0 for g in z.geometry]
     shares = pd.crosstab(j["zone_id"], j["category"], normalize="index").reindex(columns=list(cfg["weights"]),
                                                                                   fill_value=0)
     for cat in cfg["weights"]:
@@ -100,6 +105,13 @@ def write_report(path, res, cfg, checks, meta):
         f"Abrufzeitpunkt (Cache): {meta['fetched_at']}  ",
         f"Lauf: {meta['run_at']} · params_hash `{meta['params_hash']}`", "",
         "## Zonen", "", _md_table(z.drop(columns=["method", "params_hash", "osm_timestamp"])), "",
+        "## Vergleichbarkeit zwischen Städten", "",
+        "- Abgrenzung mit derselben Regel in jeder Stadt: Glättung in Metern "
+        f"({cfg['smoothing']}), Klassen relativ zum Spitzenwert der Stadt (`peak_share` {cfg.get('peak_share')}).",
+        "- Größere Polygone sammeln mehr GPS-Signale. Frequenzen deshalb nicht absolut, sondern normiert vergleichen:"
+        " **Frequenz je ha** (`area_ha`) und **je 100 m Fußgängerzone** (`ped_street_m`).",
+        "- `weighted_density_ha` = gewichtete POIs je ha; `chain_share` = Filialisierungsgrad (Anteil Einzelhandel mit"
+        " OSM-Tag `brand`), ein typisches Merkmal von 1A-Lagen.", "",
         "## Prüfungen", "",
         _md_table(pd.DataFrame(checks)[["status", "check", "detail", "hard"]].rename(columns={"hard": "hart"})), "",
         "## Suchraum und Daten", "",
@@ -118,6 +130,8 @@ def write_report(path, res, cfg, checks, meta):
         " durch getrenntes Schließen/Vereinfachen entstehen; anschließend Z2 −= Z1, Z3 −= Z1 ∪ Z2.",
         f"- Zusätzlicher Parameter `min_part_m2` ({cfg['min_part_m2']} m²): Polygonteile darunter sind Splitter aus dem"
         " getrennten Vereinfachen der kumulativen Flächen und werden verworfen (kleine Lücken möglich).",
+        "- Z1 = 1A-Lage, Z2 = 1B-Lage, Z3 = 2R-Lage; Mindestfläche 1A siehe `min_zone_m2`.",
+        "- POI-Gewicht = Kategoriegewicht × Flächenfaktor (nur Einzelhandel, `size_weighting`; Flächen sind Schätzwerte).",
         "- Dateinamen mit Methodensuffix, damit die drei Läufe einander nicht überschreiben.",
         "- Polsby-Popper wird auf die Ringfläche gerechnet; Ringe (Z2, Z3) haben dadurch systematisch niedrige Werte.",
         "", "```yaml", yaml.safe_dump(cfg, allow_unicode=True, sort_keys=False).strip(), "```", "",

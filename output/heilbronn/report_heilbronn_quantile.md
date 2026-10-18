@@ -3,15 +3,21 @@
 Datenquelle: © OpenStreetMap-Mitwirkende (ODbL), abgerufen über Overpass (https://overpass.kumi.systems/api).  
 OSM-Datenstand (Overpass `timestamp_osm_base`): 2026-07-24T11:04:51Z  
 Abrufzeitpunkt (Cache): 2026-10-18T20:37:06+00:00  
-Lauf: 2026-10-18T20:38:47+00:00 · params_hash `c75b5795e7`
+Lauf: 2026-10-18T20:50:33+00:00 · params_hash `141ed788ad`
 
 ## Zonen
 
-| zone_id | rank | area_ha | poi_count | poi_density_ha | share_retail | share_gastro | share_service | share_culture_leisure | share_health | perimeter_m | compactness |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| Z1 | 1 | 121.7 | 665 | 5.46 | 0.475 | 0.287 | 0.111 | 0.083 | 0.044 | 6873.0 | 0.324 |
-| Z2 | 2 | 159.71 | 228 | 1.43 | 0.478 | 0.246 | 0.167 | 0.075 | 0.035 | 20928.3 | 0.046 |
-| Z3 | 3 | 289.04 | 240 | 0.83 | 0.296 | 0.125 | 0.083 | 0.454 | 0.042 | 37931.2 | 0.025 |
+| zone_id | rank | area_ha | poi_count | poi_density_ha | weighted_density_ha | retail_count | chain_share | ped_street_m | share_retail | share_gastro | share_service | share_culture_leisure | share_health | perimeter_m | compactness |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Z1 | 1 | 53.6 | 526 | 9.81 | 6.72 | 212 | 0.33 | 4684.0 | 0.403 | 0.287 | 0.196 | 0.076 | 0.038 | 6148.3 | 0.178 |
+| Z2 | 2 | 65.34 | 170 | 2.6 | 1.31 | 54 | 0.204 | 806.0 | 0.318 | 0.294 | 0.253 | 0.088 | 0.047 | 18932.9 | 0.023 |
+| Z3 | 3 | 176.36 | 274 | 1.55 | 0.78 | 94 | 0.277 | 682.0 | 0.343 | 0.212 | 0.292 | 0.106 | 0.047 | 40015.3 | 0.014 |
+
+## Vergleichbarkeit zwischen Städten
+
+- Abgrenzung mit derselben Regel in jeder Stadt: Glättung in Metern ({'radius_m': 100, 'sigma_m': 40}), Klassen relativ zum Spitzenwert der Stadt (`peak_share` [0.5, 0.25, 0.1]).
+- Größere Polygone sammeln mehr GPS-Signale. Frequenzen deshalb nicht absolut, sondern normiert vergleichen: **Frequenz je ha** (`area_ha`) und **je 100 m Fußgängerzone** (`ped_street_m`).
+- `weighted_density_ha` = gewichtete POIs je ha; `chain_share` = Filialisierungsgrad (Anteil Einzelhandel mit OSM-Tag `brand`), ein typisches Merkmal von 1A-Lagen.
 
 ## Prüfungen
 
@@ -19,15 +25,16 @@ Lauf: 2026-10-18T20:38:47+00:00 · params_hash `c75b5795e7`
 |---|---|---|---|
 | OK | Genau 3 Zonen, gültig, nicht leer | 3 Zonen; leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| OK | POI-Dichte Z1 > Z2 > Z3 | 5.46 > 1.43 > 0.83 POI/ha | True |
+| OK | Z1: Fläche ≥ 2000 m² | 536005 m² | True |
+| OK | POI-Dichte Z1 > Z2 > Z3 | 9.81 > 2.6 > 1.55 POI/ha | True |
 | OK | Z1: ein Polygon | Polygon, 1 Teil(e) | False |
-| OK | Z2: ein Polygon | Polygon, 1 Teil(e) | False |
-| WARNUNG | Z3: ein Polygon | MultiPolygon, 3 Teil(e) | False |
-| OK | Z1: Polsby-Popper ≥ 0.2 | 0.324 | False |
-| WARNUNG | Z2: Polsby-Popper ≥ 0.2 | 0.046 | False |
-| WARNUNG | Z3: Polsby-Popper ≥ 0.2 | 0.025 | False |
-| WARNUNG | Sensitivität h3_resolution=11: IoU(Z1) ≥ 0.7 | IoU = 0.514 | False |
-| OK | Sensitivität smoothing={'k': 2, 'sigma': 1.5}: IoU(Z1) ≥ 0.7 | IoU = 0.881 | False |
+| WARNUNG | Z2: ein Polygon | MultiPolygon, 6 Teil(e) | False |
+| WARNUNG | Z3: ein Polygon | MultiPolygon, 19 Teil(e) | False |
+| WARNUNG | Z1: Polsby-Popper ≥ 0.2 | 0.178 | False |
+| WARNUNG | Z2: Polsby-Popper ≥ 0.2 | 0.023 | False |
+| WARNUNG | Z3: Polsby-Popper ≥ 0.2 | 0.014 | False |
+| OK | Sensitivität h3_resolution=12: IoU(Z1) ≥ 0.7 | IoU = 0.846 | False |
+| WARNUNG | Sensitivität smoothing={'radius_m': 150, 'sigma_m': 60}: IoU(Z1) ≥ 0.7 | IoU = 0.642 | False |
 | OK | Plausibilität: Z1 schneidet „Fleiner Straße“ | 3 OSM-Objekt(e) mit diesem Namen | False |
 | OK | Plausibilität: Z1 schneidet „Sülmerstraße“ | 7 OSM-Objekt(e) mit diesem Namen | False |
 | OK | Plausibilität: Z1 schneidet „Kaiserstraße“ | 13 OSM-Objekt(e) mit diesem Namen | False |
@@ -36,9 +43,9 @@ Lauf: 2026-10-18T20:38:47+00:00 · params_hash `c75b5795e7`
 ## Suchraum und Daten
 
 - Zentrum: place=city (49.14229, 9.21866), Radius 2000 m, Suchraum 1254.6 ha (mit Verwaltungsgrenze verschnitten)
-- POIs nach Bereinigung: 1354 (retail: 571, gastro: 303, culture_leisure: 268, service: 158, health: 54)
-- H3-Zellen: 895 (Auflösung 10, Ø 1.40 ha), davon Dichte > 0: 893
-- Inseln (klassifiziert, nicht mit Z1 verbunden): 43 Zellen, 60.4 ha – Klassen {2: 12, 3: 31}
+- POIs nach Bereinigung: 1351 (retail: 455, gastro: 303, service: 271, culture_leisure: 268, health: 54)
+- H3-Zellen: 6250 (Auflösung 11, Ø 0.20 ha), davon Dichte > 0: 4611
+- Inseln (klassifiziert, nicht mit Z1 verbunden): 856 Zellen, 171.7 ha – Klassen {1: 38, 2: 195, 3: 623}
 
 ## Parameter
 
@@ -48,17 +55,25 @@ Abweichungen/Auslegungen gegenüber CLAUDE.md:
 
 - Ringe aus kumulativen Zellmengen (Z1, Z1+Z2, Z1+Z2+Z3) gebildet, damit zwischen den Zonen keine Lücken durch getrenntes Schließen/Vereinfachen entstehen; anschließend Z2 −= Z1, Z3 −= Z1 ∪ Z2.
 - Zusätzlicher Parameter `min_part_m2` (500 m²): Polygonteile darunter sind Splitter aus dem getrennten Vereinfachen der kumulativen Flächen und werden verworfen (kleine Lücken möglich).
+- Z1 = 1A-Lage, Z2 = 1B-Lage, Z3 = 2R-Lage; Mindestfläche 1A siehe `min_zone_m2`.
+- POI-Gewicht = Kategoriegewicht × Flächenfaktor (nur Einzelhandel, `size_weighting`; Flächen sind Schätzwerte).
 - Dateinamen mit Methodensuffix, damit die drei Läufe einander nicht überschreiben.
 - Polsby-Popper wird auf die Ringfläche gerechnet; Ringe (Z2, Z3) haben dadurch systematisch niedrige Werte.
 
 ```yaml
 city: Heilbronn, Germany
 search_radius_m: 2000
-h3_resolution: 10
+h3_resolution: 11
 smoothing:
-  k: 2
-  sigma: 1.0
+  radius_m: 100
+  sigma_m: 40
 classification: quantile
+peak_share:
+- 0.5
+- 0.25
+- 0.1
+min_zone_m2:
+  Z1: 2000
 quantiles:
 - 0.5
 - 0.75
@@ -67,15 +82,127 @@ equal_area_ha:
 - 10
 - 20
 - 30
-closing_buffer_m: 25
+closing_buffer_m: 10
 min_hole_ha: 0.5
 simplify_m: 5
 weights:
   retail: 1.0
-  gastro: 1.0
-  service: 0.5
-  culture_leisure: 0.7
-  health: 0.5
+  gastro: 0.5
+  service: 0.3
+  culture_leisure: 0.15
+  health: 0.15
+size_weighting:
+  enabled: true
+  ref_area_m2: 200
+  exponent: 0.5
+  clip:
+  - 0.5
+  - 4.0
+  chain_factor: 1.2
+  not_central_factor: 0.2
+  not_central:
+  - car
+  - car_repair
+  - car_parts
+  - tyres
+  - motorcycle
+  - truck
+  - furniture
+  - kitchen
+  - bed
+  - carpet
+  - doityourself
+  - hardware
+  - garden_centre
+  - wholesale
+  - gas
+  - bathroom_furnishing
+  - farm
+  - trade
+  - building_materials
+  - boat
+  - caravan
+  - fuel
+  shop_area_m2:
+    department_store: 5000
+    mall: 200
+    clothes: 350
+    shoes: 300
+    sports: 600
+    outdoor: 400
+    electronics: 800
+    books: 400
+    toys: 400
+    variety_store: 400
+    chemist: 600
+    supermarket: 200
+    cosmetics: 150
+    perfumery: 200
+    bag: 150
+    jewelry: 80
+    watches: 80
+    optician: 120
+    hearing_aids: 80
+    gift: 100
+    bakery: 60
+    butcher: 80
+    confectionery: 60
+    coffee: 60
+    tea: 60
+    deli: 80
+    mobile_phone: 60
+    telecommunication: 80
+    kiosk: 30
+    tobacco: 30
+    e-cigarette: 30
+    convenience: 80
+    beverages: 150
+    alcohol: 80
+  brand_area_m2:
+    Galeria Kaufhof: 12000
+    Galeria: 12000
+    Primark: 5000
+    C&A: 2000
+    H&M: 1800
+    TK Maxx: 1500
+    Müller: 1500
+    Decathlon: 2500
+    Intersport: 1000
+    Osiander: 1000
+    Thalia: 1000
+    MediaMarkt: 3000
+    Saturn: 3000
+    Woolworth: 800
+    Action: 800
+    New Yorker: 700
+    dm: 600
+    Rossmann: 500
+    TEDi: 500
+    Takko: 500
+    KiK: 450
+    NKD: 450
+    Deichmann: 400
+    Zeeman: 400
+    s.Oliver: 400
+    Ernsting's family: 300
+    Vero Moda: 300
+    Snipes: 300
+    Nanu-Nana: 300
+    EuroShop: 300
+    Douglas: 300
+    Jack Wolfskin: 250
+    BONITA: 250
+    Fielmann: 250
+    engbers: 200
+    comma: 200
+    Tally Weijl: 200
+    Foot Locker: 200
+    Hunkemöller: 150
+    OLYMP: 150
+    Tchibo: 120
+    Christ: 100
+    Calzedonia: 100
+    Intimissimi: 100
 crs_metric: EPSG:25832
 crs_export: EPSG:4326
 cache_dir: cache
@@ -92,6 +219,33 @@ categories:
     shop:
       exclude:
       - vacant
+      - hairdresser
+      - beauty
+      - massage
+      - tattoo
+      - travel_agency
+      - dry_cleaning
+      - laundry
+      - tailor
+      - funeral_directors
+      - bookmaker
+      - lottery
+      - pawnbroker
+      - money_lender
+      - gold_buyer
+      - copyshop
+      - international_calls
+      - ticket
+      - storage_rental
+      - tool_hire
+      - rental
+      - repair
+      - license_plates
+      - cannabis
+      - erotic
+      - nails
+    amenity:
+    - pharmacy
   gastro:
     amenity:
     - restaurant
@@ -102,9 +256,32 @@ categories:
     - ice_cream
     - biergarten
   service:
+    shop:
+    - hairdresser
+    - beauty
+    - massage
+    - tattoo
+    - travel_agency
+    - dry_cleaning
+    - laundry
+    - tailor
+    - funeral_directors
+    - bookmaker
+    - lottery
+    - pawnbroker
+    - money_lender
+    - gold_buyer
+    - copyshop
+    - international_calls
+    - ticket
+    - storage_rental
+    - tool_hire
+    - rental
+    - repair
+    - license_plates
+    - nails
     amenity:
     - bank
-    - pharmacy
     - post_office
     craft: true
     office: true
@@ -152,10 +329,10 @@ qa:
   max_overlap_m2: 1.0
   min_compactness: 0.2
   sensitivity:
-  - h3_resolution: 11
+  - h3_resolution: 12
   - smoothing:
-      k: 2
-      sigma: 1.5
+      radius_m: 150
+      sigma_m: 60
   min_iou: 0.7
   plausibility:
     Heilbronn, Germany:

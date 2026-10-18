@@ -1,20 +1,21 @@
 
-Heilbronn, Germany – equal_area (params_hash 32858996eb, OSM 2026-07-24T11:04:51Z)
-zone_id  area_ha  poi_count  poi_density_ha  compactness
-     Z1     9.98        175           17.53        0.601
-     Z2     9.90        116           11.72        0.135
-     Z3     9.89         60            6.07        0.076
+Heilbronn, Germany – equal_area (params_hash 2722fa69d8, OSM 2026-07-24T11:04:51Z)
+zone_id  area_ha  poi_count  poi_density_ha  weighted_density_ha  chain_share  ped_street_m  compactness
+     Z1    10.22        207           20.26                18.24        0.437        2115.0        0.200
+     Z2    10.07        118           11.72                 7.39        0.250        1227.0        0.047
+     Z3    10.06         71            7.06                 3.83        0.105         518.0        0.042
   [OK     ] Genau 3 Zonen, gültig, nicht leer: 3 Zonen; leer: []
   [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
-  [OK     ] POI-Dichte Z1 > Z2 > Z3: 17.53 > 11.72 > 6.07 POI/ha
+  [OK     ] Z1: Fläche ≥ 2000 m²: 102157 m²
+  [OK     ] POI-Dichte Z1 > Z2 > Z3: 20.26 > 11.72 > 7.06 POI/ha
   [OK     ] Z1: ein Polygon: Polygon, 1 Teil(e)
-  [OK     ] Z2: ein Polygon: Polygon, 1 Teil(e)
-  [WARNUNG] Z3: ein Polygon: MultiPolygon, 2 Teil(e)
-  [OK     ] Z1: Polsby-Popper ≥ 0.2: 0.601
-  [WARNUNG] Z2: Polsby-Popper ≥ 0.2: 0.135
-  [WARNUNG] Z3: Polsby-Popper ≥ 0.2: 0.076
-  [WARNUNG] Sensitivität h3_resolution=11: IoU(Z1) ≥ 0.7: IoU = 0.628
-  [OK     ] Sensitivität smoothing={'k': 2, 'sigma': 1.5}: IoU(Z1) ≥ 0.7: IoU = 0.753
+  [WARNUNG] Z2: ein Polygon: MultiPolygon, 2 Teil(e)
+  [WARNUNG] Z3: ein Polygon: MultiPolygon, 7 Teil(e)
+  [OK     ] Z1: Polsby-Popper ≥ 0.2: 0.200
+  [WARNUNG] Z2: Polsby-Popper ≥ 0.2: 0.047
+  [WARNUNG] Z3: Polsby-Popper ≥ 0.2: 0.042
+  [OK     ] Sensitivität h3_resolution=12: IoU(Z1) ≥ 0.7: IoU = 0.781
+  [OK     ] Sensitivität smoothing={'radius_m': 150, 'sigma_m': 60}: IoU(Z1) ≥ 0.7: IoU = 0.788
   [OK     ] Plausibilität: Z1 schneidet „Fleiner Straße“: 3 OSM-Objekt(e) mit diesem Namen
   [OK     ] Plausibilität: Z1 schneidet „Sülmerstraße“: 7 OSM-Objekt(e) mit diesem Namen
   [OK     ] Plausibilität: Z1 schneidet „Kaiserstraße“: 13 OSM-Objekt(e) mit diesem Namen

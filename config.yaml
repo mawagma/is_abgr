@@ -1,20 +1,121 @@
 # Startwerte laut CLAUDE.md
 city: "Heilbronn, Germany"
 search_radius_m: 2000
-h3_resolution: 10
-smoothing: {k: 2, sigma: 1.0}
-classification: jenks          # jenks | quantile | equal_area
+# Z1 = 1A-Lage, Z2 = 1B-Lage, Z3 = 2R-Lage (Nebenlage)
+h3_resolution: 11              # Ø 2150 m² je Zelle ≈ Mindestgröße der 1A-Lage
+# Glättung in Metern (stadt- und auflösungsunabhängig); k und σ in Zellen werden daraus berechnet
+smoothing: {radius_m: 100, sigma_m: 40}
+classification: peak_share     # peak_share | jenks | quantile | equal_area
+# peak_share: Zelle gehört zur Klasse, wenn ihre Dichte ≥ Anteil × Spitzenwert der Stadt ist.
+# Gleiche Regel in jeder Stadt → Zonen sind über Städte hinweg vergleichbar abgegrenzt.
+peak_share: [0.5, 0.25, 0.1]   # 1A, 1B, 2R
+min_zone_m2: {Z1: 2000}        # Untergrenze 1A-Lage (harte Prüfung)
 quantiles: [0.5, 0.75, 0.9]
 equal_area_ha: [10, 20, 30]    # Z1, Z1+Z2, Z1+Z2+Z3 (kumulativ)
-closing_buffer_m: 25
+closing_buffer_m: 10           # < halbe Zellbreite (Res. 11 ≈ 50 m), sonst werden Nachbarlücken zugeschlossen
 min_hole_ha: 0.5
 simplify_m: 5
+# Einzelhandel > Gastronomie > Dienstleistung > sonstige (Kultur/Freizeit, Gesundheit)
 weights:
   retail: 1.0
-  gastro: 1.0
-  service: 0.5
-  culture_leisure: 0.7
-  health: 0.5
+  gastro: 0.5
+  service: 0.3
+  culture_leisure: 0.15
+  health: 0.15
+
+# Zusatzgewicht Einzelhandel nach typischer Verkaufsfläche (Schätzwerte, m²):
+# faktor = clip((fläche / ref_area_m2) ^ exponent) × chain_factor (wenn OSM-Tag brand gesetzt = Filialist).
+# Reihenfolge: brand → name → shop-Typ → ref_area_m2. Nicht zentrenrelevante Sortimente → fester Faktor.
+size_weighting:
+  enabled: true
+  ref_area_m2: 200
+  exponent: 0.5               # Wurzel dämpft Großflächen (Kaufhaus ≠ 50 Boutiquen)
+  clip: [0.5, 4.0]
+  chain_factor: 1.2
+  not_central_factor: 0.2
+  not_central: [car, car_repair, car_parts, tyres, motorcycle, truck, furniture, kitchen, bed, carpet,
+                doityourself, hardware, garden_centre, wholesale, gas, bathroom_furnishing, farm, trade,
+                building_materials, boat, caravan, fuel]
+  shop_area_m2:
+    department_store: 5000
+    mall: 200                 # Mieter sind einzeln erfasst → neutral
+    clothes: 350
+    shoes: 300
+    sports: 600
+    outdoor: 400
+    electronics: 800
+    books: 400
+    toys: 400
+    variety_store: 400
+    chemist: 600
+    supermarket: 200          # Nahversorgung, für Innenstadtlagen nicht prägend → neutral
+    cosmetics: 150
+    perfumery: 200
+    bag: 150
+    jewelry: 80
+    watches: 80
+    optician: 120
+    hearing_aids: 80
+    gift: 100
+    bakery: 60
+    butcher: 80
+    confectionery: 60
+    coffee: 60
+    tea: 60
+    deli: 80
+    mobile_phone: 60
+    telecommunication: 80
+    kiosk: 30
+    tobacco: 30
+    e-cigarette: 30
+    convenience: 80
+    beverages: 150
+    alcohol: 80
+  brand_area_m2:
+    "Galeria Kaufhof": 12000
+    "Galeria": 12000
+    "Primark": 5000
+    "C&A": 2000
+    "H&M": 1800
+    "TK Maxx": 1500
+    "Müller": 1500
+    "Decathlon": 2500
+    "Intersport": 1000
+    "Osiander": 1000
+    "Thalia": 1000
+    "MediaMarkt": 3000
+    "Saturn": 3000
+    "Woolworth": 800
+    "Action": 800
+    "New Yorker": 700
+    "dm": 600
+    "Rossmann": 500
+    "TEDi": 500
+    "Takko": 500
+    "KiK": 450
+    "NKD": 450
+    "Deichmann": 400
+    "Zeeman": 400
+    "s.Oliver": 400
+    "Ernsting's family": 300
+    "Vero Moda": 300
+    "Snipes": 300
+    "Nanu-Nana": 300
+    "EuroShop": 300
+    "Douglas": 300
+    "Jack Wolfskin": 250
+    "BONITA": 250
+    "Fielmann": 250
+    "engbers": 200
+    "comma": 200
+    "Tally Weijl": 200
+    "Foot Locker": 200
+    "Hunkemöller": 150
+    "OLYMP": 150
+    "Tchibo": 120
+    "Christ": 100
+    "Calzedonia": 100
+    "Intimissimi": 100
 
 # --- Ergänzungen (in CLAUDE.md beschrieben, aber ohne Startwert) ---
 crs_metric: "EPSG:25832"
@@ -32,13 +133,21 @@ min_part_m2: 500           # Splitter aus getrenntem Vereinfachen verwerfen (≪
 
 # Kategorien in Prioritätsreihenfolge (erste Übereinstimmung gewinnt).
 # Regel: true = jeder Wert, Liste = nur diese Werte, {exclude: [...]} = jeder Wert außer diesen
+# Apotheken zählen zum Einzelhandel; dienstleistende shop-Typen (Friseur, Reisebüro …) zur Dienstleistung.
 categories:
   retail:
-    shop: {exclude: [vacant]}
+    shop: {exclude: [vacant, hairdresser, beauty, massage, tattoo, travel_agency, dry_cleaning, laundry, tailor,
+                     funeral_directors, bookmaker, lottery, pawnbroker, money_lender, gold_buyer, copyshop,
+                     international_calls, ticket, storage_rental, tool_hire, rental, repair, license_plates,
+                     cannabis, erotic, nails]}
+    amenity: [pharmacy]
   gastro:
     amenity: [restaurant, cafe, fast_food, bar, pub, ice_cream, biergarten]
   service:
-    amenity: [bank, pharmacy, post_office]
+    shop: [hairdresser, beauty, massage, tattoo, travel_agency, dry_cleaning, laundry, tailor, funeral_directors,
+           bookmaker, lottery, pawnbroker, money_lender, gold_buyer, copyshop, international_calls, ticket,
+           storage_rental, tool_hire, rental, repair, license_plates, nails]
+    amenity: [bank, post_office]
     craft: true
     office: true
   culture_leisure:
@@ -58,7 +167,7 @@ context:
 qa:
   max_overlap_m2: 1.0
   min_compactness: 0.2
-  sensitivity: [{h3_resolution: 11}, {smoothing: {k: 2, sigma: 1.5}}]
+  sensitivity: [{h3_resolution: 12}, {smoothing: {radius_m: 150, sigma_m: 60}}]
   min_iou: 0.7
   plausibility:                 # Z1 muss diese OSM-Objekte (Name) schneiden
     "Heilbronn, Germany": ["Fleiner Straße", "Sülmerstraße", "Kaiserstraße", "Marktplatz"]

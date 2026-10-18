@@ -5,9 +5,16 @@ import numpy as np
 from shapely.geometry import Polygon
 
 
-def build_grid(aoi, pois, cfg, res, k, sigma):
+def smoothing_cells(res, radius_m, sigma_m):
+    """Glättung in Metern → (k, σ) in Zellschritten; Zellabstand = √3 × Kantenlänge."""
+    step = np.sqrt(3) * h3.average_hexagon_edge_length(res, "m")
+    return max(1, round(radius_m / step)), sigma_m / step
+
+
+def build_grid(aoi, pois, cfg, res, radius_m, sigma_m):
     """Zellen im Suchraum mit gewichteter POI-Zahl (raw), Gauß-Mittel (smooth) und Dichte je ha (dens)."""
     crs = cfg["crs_metric"]
+    k, sigma = smoothing_cells(res, radius_m, sigma_m)
     aoi_ll = gpd.GeoSeries([aoi], crs=crs).to_crs(4326).iloc[0]
     cells = sorted(h3.geo_to_cells(aoi_ll, res))
     raw = dict.fromkeys(cells, 0.0)
