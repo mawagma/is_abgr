@@ -40,6 +40,8 @@ def build_segments(streets, cfg):
         merged = shapely.line_merge(shapely.union_all(grp.geometry.to_numpy()))
         chains += [(name, g) for g in shapely.get_parts(merged)]
     chains += [(None, g) for g in shapely.get_parts(streets.loc[streets["name"].isna()].geometry.to_numpy())]
+    # Zuschnitt am Suchraumrand kann Punkte/Sammlungen liefern → nur Linien segmentieren
+    chains = [(n, g) for n, g in chains if g.geom_type == "LineString" and g.length > 0]
     rows = []
     for chain_id, (name, line) in enumerate(chains):
         n = max(1, int(line.length // L))

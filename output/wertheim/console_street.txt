@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/user/is_abgr/src/zones/cli.py", line 153, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/user/is_abgr/src/zones/cli.py", line 91, in main
+    return main_street(cfg, aoi, center, raw, pois, overrides)
+  File "/home/user/is_abgr/src/zones/cli.py", line 132, in main_street
+    res = run_street(load_streets(aoi, cfg), pois, cfg, obstacles=obstacles)
+  File "/home/user/is_abgr/src/zones/street.py", line 354, in run_street
+    seg, nb, adj = build_segments(streets, cfg)
+                   ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/user/is_abgr/src/zones/street.py", line 48, in build_segments
+    rows.append({"street": name, "chain_id": chain_id, "geometry": substring(line, i * L, end)})
+                                                                   ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/user/is_abgr/.venv/lib/python3.13/site-packages/shapely/ops.py", line 600, in substring
+    raise GeometryTypeError(
+    ...<2 lines>...
+    )
+shapely.errors.GeometryTypeError: Can only calculate a substring of LineString geometries. A Point was provided.

@@ -54,9 +54,14 @@ def street_checks(res, cfg):
         len(g) == 3 and all(x.is_valid for x in g) and set(empty) <= may_be_empty, f"leer: {empty}")
     ov = max((a.intersection(b).area for a, b in combinations(g, 2)), default=0.0)
     add(f"Überlappung < {q['max_overlap_m2']} m²", True, ov < q["max_overlap_m2"], f"max. {ov:.4f} m²")
-    d = [v for v, l in zip(z["density_per_100m"], z["lage"]) if l not in empty]  # leere 1b überspringen
-    add("Dichte 1a > 1b > 2", True, all(a > b for a, b in zip(d, d[1:])),
-        " > ".join(map(str, z["density_per_100m"])) + " je 100 m")
+    # 1b ist über die Laufachse definiert, nicht über Dichte: dichte Nebenstraßen bleiben 2-Lage (z. B. Stuttgart
+    # Eberhardstraße) → hart nur „1a dichter als 1b und 2“, „1b dichter als 2“ als Warnung
+    dd = dict(zip(z["lage"], z["density_per_100m"]))
+    detail = " / ".join(f"{l[5:]} {v}" for l, v in dd.items()) + " je 100 m"
+    add("Dichte 1a > 1b und 1a > 2", True,
+        all(dd["lage_1a"] > dd[l] for l in ("lage_1b", "lage_2") if l not in empty), detail)
+    if "lage_1b" not in empty:
+        add("Dichte 1b > 2", False, dd["lage_1b"] > dd["lage_2"], detail)
     th = res["thresholds"]
     for r in z.itertuples():
         lo, hi = res["targets_km"][r.lage]

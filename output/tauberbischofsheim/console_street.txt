@@ -1,0 +1,13 @@
+
+Tauberbischofsheim, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 6aaeb260b3)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                   street_names
+lage_1a      0.555     0.95         30              6.08        0.167                                                        Hauptstraße; Marktplatz
+lage_1b      0.386     0.76         19              5.11        0.053                     Bahnhofstraße; Hauptstraße; Sonnenplatz; Würzburger Straße
+ lage_2      0.322     0.41          8              2.49        0.000 Eichstraße; Martinsgasse; Museumstraße; Rosengasse; Schloßweg; Schmiederstraße
+Schwellen: {'lage_1a': {'min_density': 3.28, 'min_brand_share': 0.1, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 1.41, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 1.87}}
+  [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: []
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [OK     ] Dichte 1a > 1b > 2: 6.08 > 5.11 > 2.49 je 100 m
+  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 0.555 km → lage_1a.min_density (3.28) senken oder lage_1a.min_brand_share (0.1) senken
+  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.386 km → lage_1b.min_density (1.41) senken
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 0.322 km → lage_2.min_density (1.87) senken
