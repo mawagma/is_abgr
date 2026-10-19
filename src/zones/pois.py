@@ -113,8 +113,10 @@ def categorize(raw, cfg):
     col = lambda c: sel[c] if c in sel else pd.Series(None, index=sel.index, dtype=object)
     if ground:  # Erdgeschoss-Nutzungen; Filialist = brand oder brand:wikidata
         pois["chain"] = col("brand").notna() | col("brand:wikidata").notna()
-        pois["size_factor"] = 1.0
-        pois["weight"] = np.where(pois["chain"], cfg["street"]["brand_weight"], 1.0)
+        sw = cfg["size_weighting"]  # Verkaufsflächen-Faktor; Filialbonus steckt schon in brand_weight
+        pois["size_factor"] = (size_factor(sel, pois["category"], {**sw, "chain_factor": 1.0})
+                               if cfg.get("ground_floor_size_weighting") else 1.0)
+        pois["weight"] = np.where(pois["chain"], cfg["street"]["brand_weight"], 1.0) * pois["size_factor"]
     else:
         pois["chain"] = col("brand").notna() & (pois["category"] == "retail")
         pois["size_factor"] = size_factor(sel, pois["category"], cfg["size_weighting"])

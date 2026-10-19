@@ -172,3 +172,11 @@ def test_secondary_1a_chain():
     seg = run_street(streets, pois, {**CFG, "city": "Teststadt"}, auto_calibrate=False)["segments"]
     x1a = seg.loc[seg["lage"] == "lage_1a"].geometry.centroid.x - x0
     assert (x1a < 300).any() and (x1a > 600).any()
+
+
+def test_smooth_runs_fills_short_gaps():
+    from zones.street import smooth_runs
+    seg = pd.DataFrame({"chain_id": [0] * 6, "length_m": [50.0] * 6})
+    lage = np.array(["lage_1a", "lage_1a", "lage_2", "lage_1a", "lage_1b", "lage_1b"], dtype=object)
+    out = smooth_runs(seg, lage, 100)
+    assert list(out) == ["lage_1a", "lage_1a", "lage_1a", "lage_1a", "lage_1b", "lage_1b"]

@@ -8,9 +8,51 @@ import shapely
 from shapely.ops import substring
 
 from .pois import features
+from shapely.geometry import Polygon
+
 from .polygons import _fill_holes, _polygonal
 
 LAGEN = ["lage_1a", "lage_1b", "lage_2"]
+
+
+def load_squares(aoi, cfg):
+    """Fußgängerflächen (highway=pedestrian als Fläche, z. B. Plätze) für die Polygone; gleicher Abruf wie
+    load_streets (Cache-Treffer)."""
+    aoi_ll = gpd.GeoSeries([aoi], crs=cfg["crs_metric"]).to_crs(4326).iloc[0]
+    st = cfg["street"]
+    raw = features(aoi_ll, {"highway": st["highway"] + st["highway_named_only"]}, cfg)
+    sq = raw[raw.geom_type.isin(["Polygon", "MultiPolygon"]) & (raw["highway"] == "pedestrian")]
+    return shapely.union_all(sq.geometry.intersection(aoi).to_numpy()) if len(sq) else None
+
+
+def smooth_runs(seg, lage, min_run_m):
+    """Kurze Unterbrechungen entlang derselben Straße glätten: ein Abschnitt < min_run_m zwischen zwei Nachbarn
+    wird auf die nähere Klasse gesetzt (Loch → kleinere der beiden Nachbarklassen, Spitze → größere)."""
+    rank = {"": 0, "lage_2": 1, "lage_1b": 2, "lage_1a": 3}
+    name = {v: k for k, v in rank.items()}
+    lage = lage.copy()
+    L = seg["length_m"].to_numpy()
+    for _, idx in seg.groupby("chain_id").indices.items():
+        idx = np.sort(idx)
+        for _ in range(3):
+            runs, start = [], 0
+            for i in range(1, len(idx) + 1):
+                if i == len(idx) or lage[idx[i]] != lage[idx[start]]:
+                    runs.append((start, i))
+                    start = i
+            changed = False
+            for k in range(1, len(runs) - 1):
+                s, e = runs[k]
+                if L[idx[s:e]].sum() >= min_run_m:
+                    continue
+                r, a, b = (rank[lage[idx[runs[j][0]]]] for j in (k, k - 1, k + 1))
+                new = min(a, b) if r < min(a, b) else max(a, b) if r > max(a, b) else r
+                if new != r:
+                    lage[idx[s:e]] = name[new]
+                    changed = True
+            if not changed:
+                break
+    return lage
 
 
 def load_streets(aoi, cfg):
@@ -298,9 +340,10 @@ def calibrate(seg, adj, cfg, ref=None):
     return th, log
 
 
-def street_polygons(seg, cfg, obstacles=None):
+def street_polygons(seg, cfg, obstacles=None, squares=None):
     """Segmente je Lage puffern (flache Enden), vereinigen, Löcher füllen; Ringe 1b −= 1a, 2 −= 1a ∪ 1b.
-    obstacles (Gebäude, Malls): werden abgezogen → nur Straßenraum; Teile ohne Kontakt zur Achse entfallen."""
+    squares: angrenzende Plätze kommen zur Lage. obstacles (Gebäude, Malls): werden abgezogen → nur Straßenraum;
+    schmale Durchgänge (< 2 × backyard_opening_m) werden gekappt, Teile ohne Kontakt zur Achse entfallen."""
     st = cfg["street"]
     cum = []
     for k in range(3):
@@ -308,9 +351,15 @@ def street_polygons(seg, cfg, obstacles=None):
         g = shapely.union_all(sel.geometry.buffer(st["buffer_m"], cap_style="flat").to_numpy())
         if not g.is_empty:
             g = _fill_holes(g, st["min_hole_ha"] * 1e4)
+            if squares is not None:
+                g = g.union(shapely.union_all([p for p in shapely.get_parts(squares) if p.intersects(g)] or [Polygon()]))
             if obstacles is not None:
                 axes = shapely.union_all(sel.geometry.to_numpy())
-                g = shapely.union_all([p for p in shapely.get_parts(g.difference(obstacles)) if p.intersects(axes)])
+                o = st.get("backyard_opening_m", 0)
+                g = g.difference(obstacles)
+                if o:  # Öffnen; Schnitt mit dem Ausgangspolygon gegen numerische Überstände in Gebäude
+                    g = g.buffer(-o).buffer(o).intersection(g)
+                g = shapely.union_all([p for p in shapely.get_parts(g) if p.intersects(axes)] or [Polygon()])
         cum.append(g)
     m = cfg["min_part_m2"]
     z1 = _polygonal(cum[0], m)
@@ -350,7 +399,7 @@ def nebenlagen_gdf(seg, neben):
         {"nebenlage_id": [], "geometry": []}, geometry="geometry", crs=seg.crs)
 
 
-def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
+def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None, squares=None):
     """Kern-Pipeline ohne Netz (Tests): Segmente → Zuordnung → Kennwerte → (Kalibrierung) → Lagen → Polygone."""
     st = cfg["street"]
     seg, nb, adj = build_segments(streets, cfg)
@@ -376,6 +425,8 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
         lage = np.full(len(seg), "", dtype=object)
         lage[list(_chain(fixed, ok, adj, st["max_gap_segments"]))] = "lage_2"
         lage[ref != ""] = ref[ref != ""]
+    if not st.get("lagen_from_reference") and st.get("min_run_m"):
+        lage = smooth_runs(seg, lage, st["min_run_m"])
     seg["lage"] = lage
     targets = {l: list(v) for l, v in st["target_ranges_km"].items()}
     if ref is not None:  # km-Ziele aus der Referenz ableiten
@@ -384,7 +435,7 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
         for l in ("lage_1a", "lage_1b"):
             km = seg.loc[ref == l, "length_m"].sum() / 1000
             targets[l] = [round(km * (1 - tol), 2), round(km * (1 + tol), 2)]
-    zones = zone_attributes(street_polygons(seg, cfg, obstacles), seg)
+    zones = zone_attributes(street_polygons(seg, cfg, obstacles, squares), seg)
     return {"segments": seg, "pois": pois, "zones": zones, "nebenlagen": nebenlagen_gdf(seg, neben),
             "thresholds": th, "relative_reference": rel, "calibration": log, "auto_calibrate": auto, "targets_km": targets,
             "reference_match": reference_match(seg, lage, ref) if ref is not None else None}

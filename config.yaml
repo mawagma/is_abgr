@@ -4,6 +4,8 @@ mode: street                   # street | grid
 # ground_floor = Erdgeschoss-Nutzungen + Filialistengewicht (Street- und Rastermodus)
 # categories   = bisherige Kategorien (weights) + Flächenfaktor (size_weighting)
 poi_model: ground_floor
+# Erdgeschoss-POIs zusätzlich nach typischer Verkaufsfläche gewichten (Tabelle size_weighting, nur Einzelhandel)
+ground_floor_size_weighting: true
 search_radius_m: 2000
 # Z1 = 1A-Lage, Z2 = 1B-Lage, Z3 = 2R-Lage (Nebenlage)
 h3_resolution: 11              # Ø 2150 m² je Zelle ≈ Mindestgröße der 1A-Lage
@@ -227,7 +229,10 @@ street:
     # nimmt aber höchstens 150 m davon auf und senkt den Heilbronn-F1 auf ≤ 0,61 → nicht aktiv.
     lage_1b: {density: 0.15, centrality_pct: 0.9}
     lage_2:  {density: 0.2}
-  allow_empty_1b: true          # Kleinstädte ohne eigenständige zweite Achse: 1a + 2-Lage
+  allow_empty_1b: true
+  min_run_m: 100                # kürzere Unterbrechungen entlang derselben Straße glätten (gegen 1a-2-1a-Wechsel)
+  include_squares: true         # an eine Lage grenzende Plätze (Fußgängerflächen) ins Polygon
+  backyard_opening_m: 3         # Durchgänge < 6 m zu Hinterhöfen kappen          # Kleinstädte ohne eigenständige zweite Achse: 1a + 2-Lage
   centrality_radius_m: 600      # lokale Zentralität: fußläufiges Umfeld der 1a (≈ 7–8 Gehminuten)
   centrality_samples: 600       # Stichprobe Betweenness (Reproduzierbarkeit über centrality_seed)
   centrality_seed: 1
