@@ -11,7 +11,7 @@ def build_aoi(cfg):
     city, crs = cfg["city"], cfg["crs_metric"]
     boundary = ox.geocode_to_gdf(city).to_crs(crs).union_all()
     name = city.split(",")[0].strip()
-    center, source = None, "place=city"
+    center, source = None, "place=city/town"
     try:
         nodes = features(gpd.GeoSeries([boundary], crs=crs).to_crs(4326).iloc[0], {"place": ["city", "town"]}, cfg)
         if "name" in nodes:
