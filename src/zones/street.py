@@ -175,7 +175,8 @@ def classify_segments(seg, adj, th, gap, seed="max_density"):
 def centrality_pct(seg, adj, cfg, core=None):
     """Lokale Netzzentralität (Betweenness über das Segmentnetz, Gewicht = Länge) als Perzentil.
     Nur Segmente im Umkreis centrality_radius_m um core (die 1a) – fußläufiges Zentrum statt Durchgangsstraßen
-    der ganzen Stadt. Außerhalb = 0. Misst Laufachsen: über welche Abschnitte viele kürzeste Wege führen."""
+    der ganzen Stadt. Außerhalb = 0. Misst Laufachsen: über welche Abschnitte viele kürzeste Wege führen.
+    Perzentil nur unter den Segmenten außerhalb der 1a (in Kleinstädten ist die 1a selbst die zentralste Achse)."""
     import networkx as nx
     st, L = cfg["street"], seg["length_m"].to_numpy()
     inside = np.ones(len(seg), bool) if core is None else (
@@ -185,8 +186,10 @@ def centrality_pct(seg, adj, cfg, core=None):
     G.add_nodes_from(idx)
     G.add_edges_from((i, j, {"w": (L[i] + L[j]) / 2}) for i in idx for j in adj[i] if i < j and inside[j])
     bc = nx.betweenness_centrality(G, weight="w", k=min(st["centrality_samples"], len(idx)), seed=st["centrality_seed"])
+    cand = [i for i in idx if core is None or i not in set(core)]
     out = np.zeros(len(seg))
-    out[idx] = pd.Series([bc[i] for i in idx]).rank(pct=True).to_numpy()
+    if cand:
+        out[cand] = pd.Series([bc[i] for i in cand]).rank(pct=True).to_numpy()
     return out
 
 
