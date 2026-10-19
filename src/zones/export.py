@@ -13,6 +13,11 @@ CAT_COLORS = {"retail": "#1f77b4", "gastro": "#e377c2", "service": "#7f7f7f", "c
               "health": "#9467bd"}
 
 
+def _safe(text):
+    """Folium bettet Tooltips in JS-Template-Strings ein: Backtick (z. B. „Mike`s“) bricht die ganze Karte."""
+    return text.replace("`", "'")
+
+
 def zone_attributes(zones, pois, cfg, method, params_hash, osm_ts, ped=None):
     z = zones.copy()
     z["area_ha"] = (z.area / 1e4).round(2)
@@ -82,7 +87,7 @@ def write_map(path, res):
         fg = folium.FeatureGroup(f"POI: {cat}").add_to(m)
         for p, name in zip(grp.geometry, grp.get("name", pd.Series(index=grp.index))):
             folium.CircleMarker([p.y, p.x], radius=2, color=CAT_COLORS.get(cat, "#000"), weight=0, fill=True,
-                                fill_opacity=0.9, tooltip=f"{cat}: {name}" if isinstance(name, str) else cat
+                                fill_opacity=0.9, tooltip=_safe(f"{cat}: {name}") if isinstance(name, str) else cat
                                 ).add_to(fg)
     folium.LayerControl(collapsed=False).add_to(m)
     m.save(path)
@@ -203,7 +208,7 @@ def write_street_map(path, res):
                               ("Filialisten", pois[pois["chain"]], dict(radius=5, color="#6a3d9a", fill_opacity=1))):
         fg = folium.FeatureGroup(label).add_to(m)
         for p, name in zip(grp.geometry, grp.get("name", pd.Series(index=grp.index))):
-            folium.CircleMarker([p.y, p.x], weight=0, fill=True, tooltip=name if isinstance(name, str) else None,
+            folium.CircleMarker([p.y, p.x], weight=0, fill=True, tooltip=_safe(name) if isinstance(name, str) else None,
                                 **style).add_to(fg)
     folium.LayerControl(collapsed=False).add_to(m)
     m.save(path)
