@@ -4,33 +4,30 @@ Gleiche Regel in allen Städten: Schwellen aus der Heilbronn-Kalibrierung (confi
 
 | Stadt | Variante | Lage | Länge km | Straßenraum ha | POIs | Betriebe je 100 m | Filialanteil | Hauptstraßen (nach Länge) |
 |---|---|---|---|---|---|---|---|---|
-| heilbronn | street | 1a | 0.566 | 0.97 | 37 | 9.58 | 62% | Fleiner Straße, Am Wollhaus, Kilianstraße, Kiliansplatz, Deutschhofstraße |
-| heilbronn | street | 1b | 0.553 | 1.16 | 31 | 6.69 | 26% | Kaiserstraße, Sülmerstraße |
-| heilbronn | street | 2 | 4.598 | 8.34 | 183 | 4.4 | 14% | Allee, Gerberstraße, Lohtorstraße, Kirchbrunnenstraße, Sülmerstraße |
-| heilbronn | street_reference | 1a | 0.518 | 0.93 | 35 | 9.95 | 63% | Fleiner Straße, Am Wollhaus, Kiliansplatz, Deutschhofstraße |
-| heilbronn | street_reference | 1b | 0.585 | 1.15 | 31 | 6.19 | 23% | Kaiserstraße, Sülmerstraße |
-| heilbronn | street_reference | 2 | 4.524 | 8.1 | 185 | 4.55 | 15% | Allee, Sülmerstraße, Gerberstraße, Lohtorstraße, Kilianstraße |
-| stuttgart | street | 1a | 1.27 | 2.78 | 100 | 11.6 | 63% | Königstraße, Büchsenstraße, Stiftstraße, Neue Brücke, Gymnasiumstraße |
-| stuttgart | street | 1b | 0.397 | 0.85 | 19 | 4.97 | 5% | Königstraße, Sporerstraße, Kirchstraße |
-| stuttgart | street | 2 | 5.453 | 8.76 | 392 | 8.26 | 20% | Eberhardstraße, Sophienstraße, Calwer Straße, Arnulf-Klett-Platz, Kronenstraße |
-| essen | street | 1a | 0.676 | 1.29 | 73 | 14.46 | 45% | Kettwiger Straße, Limbecker Straße, Kornmarkt |
-| essen | street | 1b | 0.862 | 1.98 | 26 | 3.88 | 38% | Kettwiger Straße, Kennedyplatz, Kastanienallee, Theaterplatz, Limbecker Platz |
-| essen | street | 2 | 1.037 | 1.27 | 37 | 4.44 | 32% | Rathenaustraße, Friedrich-Ebert-Straße, Limbecker Straße, Kettwiger Straße, Schwarze Horn |
-| wuerzburg | street | 1a | 1.547 | 2.13 | 145 | 11.94 | 37% | Kaiserstraße, Eichhornstraße, Marktplatz, Kürschnerhof, Blasiusgasse |
-| wuerzburg | street | 1b | 1.357 | 2.41 | 101 | 8.27 | 15% | Semmelstraße, Marktplatz, Eichhornstraße, Dominikanerplatz, Bronnbachergasse |
-| wuerzburg | street | 2 | 3.493 | 4.69 | 246 | 7.52 | 9% | Juliuspromenade, Karmelitenstraße, Theaterstraße, Domstraße, Textorstraße |
-| ludwigsburg | street | 1a | 1.381 | 2.71 | 123 | 11.63 | 41% | Kirchstraße, Wilhelmstraße, Bahnhofstraße, Körnerstraße, Kronenstraße |
-| ludwigsburg | street | 1b | 0.589 | 1.21 | 43 | 7.68 | 7% | Wilhelmstraße, Seestraße, Bietigheimer Straße, Arsenalstraße |
-| ludwigsburg | street | 2 | 1.643 | 2.94 | 94 | 6.41 | 16% | Eberhardstraße, Hermannstraße, Bahnhofstraße, Schillerstraße, Asperger Straße |
-| waiblingen | street | 1a | 1.214 | 2.28 | 75 | 7.6 | 31% | Kurze Straße, Fronackerstraße, Alter Postplatz, Bahnhofstraße, Albert-Roller-Straße |
-| waiblingen | street | 1b | 1.314 | 2.86 | 53 | 4.2 | 6% | Lange Straße, Schmidener Straße, Am Stadtgraben, Blumenstraße, Fronackerstraße |
-| waiblingen | street | 2 | 1.188 | 1.88 | 62 | 5.66 | 11% | Bahnhofstraße, Kurze Straße, Marktgasse, Untere Lindenstraße, Heinrich-Küderli-Straße |
-| oehringen | street | 1a | 0.633 | 1.04 | 46 | 7.86 | 11% | Poststraße, Marktstraße, Marktplatz, Kirchgasse |
+| heilbronn | street | 1a | 0.301 | 1.3 | 26 | 14.94 | 58% | Fleiner Straße, Kiliansplatz, Deutschhofstraße |
+| heilbronn | street | 1b | 1.152 | 3.15 | 53 | 5.75 | 28% | Kaiserstraße, Sülmerstraße, Gerberstraße, Fleiner Straße, Kramstraße |
+| heilbronn | street | 2 | 3.543 | 4.39 | 162 | 5.18 | 15% | Allee, Am Wollhaus, Lohtorstraße, Kilianstraße, Kirchbrunnenstraße |
+| stuttgart | street | 1a | 1.096 | 8.04 | 98 | 15.9 | 63% | Königstraße, Büchsenstraße, Gymnasiumstraße, Alte Poststraße, Thouretstraße |
+| stuttgart | street | 1b | 0.779 | 0.69 | 44 | 6.34 | 23% | Königstraße, Hirschstraße, Stiftstraße, Neue Brücke, Tübinger Straße |
+| stuttgart | street | 2 | 4.057 | 5.32 | 324 | 8.96 | 19% | Calwer Straße, Eberhardstraße, Sophienstraße, Marienstraße, Lange Straße |
+| essen | street | 1a | 0.723 | 3.92 | 75 | 14.94 | 49% | Kettwiger Straße, Limbecker Straße, Porschekanzel, Porscheplatz |
+| essen | street | 1b | 0.458 | 0.9 | 9 | 2.62 | 44% | Theaterplatz, Kettwiger Straße, Limbecker Platz, I. Dellbrügge |
+| essen | street | 2 | 0.962 | 0.93 | 40 | 6.23 | 28% | Limbecker Straße, Friedrich-Ebert-Straße, Kornmarkt, Rathenaustraße, Schwarze Horn |
+| wuerzburg | street | 1a | 1.574 | 5.0 | 140 | 12.44 | 41% | Kaiserstraße, Eichhornstraße, Marktplatz, Kürschnerhof, Schönbornstraße |
+| wuerzburg | street | 1b | 0.887 | 0.67 | 87 | 10.11 | 7% | Semmelstraße, Eichhornstraße, Marktplatz, Bronnbachergasse, Spiegelstraße |
+| wuerzburg | street | 2 | 3.638 | 3.31 | 252 | 7.42 | 11% | Juliuspromenade, Theaterstraße, Karmelitenstraße, Domstraße, Dominikanerplatz |
+| ludwigsburg | street | 1a | 1.457 | 4.68 | 123 | 11.92 | 39% | Kirchstraße, Körnerstraße, Wilhelmstraße, Kronenstraße, Hermannstraße |
+| ludwigsburg | street | 1b | 0.439 | 0.89 | 25 | 6.58 | 8% | Wilhelmstraße, Bietigheimer Straße, Arsenalstraße, Seestraße |
+| ludwigsburg | street | 2 | 1.069 | 1.04 | 70 | 6.89 | 6% | Eberhardstraße, Seestraße, Asperger Straße, Untere Marktstraße, Kaffeeberg |
+| waiblingen | street | 1a | 1.152 | 2.2 | 71 | 7.47 | 31% | Kurze Straße, Fronackerstraße, Alter Postplatz, Bahnhofstraße, Albert-Roller-Straße |
+| waiblingen | street | 1b | 1.074 | 1.73 | 46 | 4.27 | 6% | Lange Straße, Blumenstraße, Fronackerstraße, Hadergasse, Alter Postplatz |
+| waiblingen | street | 2 | 1.335 | 1.83 | 69 | 5.5 | 12% | Bahnhofstraße, Kurze Straße, Marktgasse, Untere Lindenstraße, Heinrich-Küderli-Straße |
+| oehringen | street | 1a | 0.633 | 0.87 | 46 | 7.85 | 11% | Poststraße, Marktstraße, Marktplatz, Kirchgasse |
 | oehringen | street | 1b | 0.0 | 0.0 | 0 | 0.0 | 0% |  |
-| oehringen | street | 2 | 1.663 | 3.12 | 54 | 3.43 | 7% | Bahnhofstraße, Schillerstraße, Untere Torstraße, Bismarckstraße, Schafgasse |
-| wertheim | street | 1a | 0.539 | 0.97 | 33 | 6.95 | 18% | Bahnhofstraße, Maingasse, Brückengasse, Weingärtnerstraße, Eichelgasse |
-| wertheim | street | 1b | 0.32 | 0.59 | 8 | 2.5 | 0% | Eichelgasse, Tauberbrücke, Rechte Tauberstraße |
-| wertheim | street | 2 | 0.809 | 1.05 | 35 | 4.33 | 0% | Tauber-Promenade, Mühlenstraße, Lindenstraße, Marktplatz, Rathausgasse |
-| tauberbischofsheim | street | 1a | 0.555 | 0.95 | 30 | 6.08 | 17% | Hauptstraße, Marktplatz |
-| tauberbischofsheim | street | 1b | 0.386 | 0.76 | 19 | 5.11 | 5% | Hauptstraße, Bahnhofstraße, Würzburger Straße, Sonnenplatz |
-| tauberbischofsheim | street | 2 | 0.322 | 0.41 | 8 | 2.49 | 0% | Eichstraße, Museumstraße, Schmiederstraße, Schloßweg, Rosengasse |
+| oehringen | street | 2 | 1.597 | 2.46 | 53 | 3.62 | 9% | Bahnhofstraße, Untere Torstraße, Bismarckstraße, Schafgasse, Rathausstraße |
+| wertheim | street | 1a | 0.439 | 0.61 | 31 | 8.26 | 13% | Bahnhofstraße, Maingasse, Brückengasse, Eichelgasse, Marktplatz |
+| wertheim | street | 1b | 0.32 | 0.48 | 8 | 2.08 | 0% | Eichelgasse, Tauberbrücke, Rechte Tauberstraße |
+| wertheim | street | 2 | 0.809 | 0.87 | 37 | 4.31 | 5% | Tauber-Promenade, Lindenstraße, Marktplatz, Rathausgasse, Münzgasse |
+| tauberbischofsheim | street | 1a | 0.353 | 1.35 | 18 | 6.73 | 22% | Hauptstraße, Krautgartenweg, Marktplatz |
+| tauberbischofsheim | street | 1b | 0.615 | 0.58 | 33 | 5.58 | 9% | Hauptstraße, Bahnhofstraße, Marktplatz, Sonnenplatz |
+| tauberbischofsheim | street | 2 | 0.338 | 0.53 | 8 | 2.45 | 12% | Eichstraße, Museumstraße, Krautgartenweg, Schmiederstraße, Schloßweg |

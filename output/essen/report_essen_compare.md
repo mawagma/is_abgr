@@ -1,6 +1,6 @@
 # Lagevergleich Essen, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T19:54:19+00:00, params_hash `9ae0b972b4`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T20:03:09+00:00, params_hash `35b7f7b6fe`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Essen, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -9,29 +9,29 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 
 | Lage | Ziel km | Raster km | Street km | Raster ha | Street ha | Raster POIs | Street POIs | Raster Filialanteil | Street Filialanteil |
 |---|---|---|---|---|---|---|---|---|---|
-| lage_1a | 0.6–1.2 | 0.03 | 0.723 | 1.34 | 3.92 | 37 | 75 | 0.703 | 0.493 |
-| lage_1b | 1.0–2.0 | 1.79 | 0.458 | 5.36 | 0.9 | 85 | 9 | 0.412 | 0.444 |
-| lage_2 | 2.0–4.0 | 5.79 | 0.962 | 20.52 | 0.93 | 174 | 40 | 0.293 | 0.275 |
+| lage_1a | 0.6–1.2 | 0.03 | 0.58 | 1.34 | 3.91 | 37 | 69 | 0.703 | 0.435 |
+| lage_1b | 1.0–2.0 | 1.79 | 0.89 | 5.36 | 1.29 | 85 | 26 | 0.412 | 0.423 |
+| lage_2 | 2.0–4.0 | 5.79 | 1.024 | 20.52 | 0.98 | 174 | 41 | 0.293 | 0.341 |
 
 ## Street-Modus: Lagen (Kennwerte über die zugeordneten Segmente)
 
 | lage | length_km | area_ha | poi_count | density_per_100m | brand_share |
 |---|---|---|---|---|---|
-| lage_1a | 0.723 | 3.92 | 75 | 14.94 | 0.493 |
-| lage_1b | 0.458 | 0.9 | 9 | 2.62 | 0.444 |
-| lage_2 | 0.962 | 0.93 | 40 | 6.23 | 0.275 |
+| lage_1a | 0.58 | 3.91 | 69 | 16.88 | 0.435 |
+| lage_1b | 0.89 | 1.29 | 26 | 3.77 | 0.423 |
+| lage_2 | 1.024 | 0.98 | 41 | 6.16 | 0.341 |
 
 ## Straßennamen je Lage
 
-- **lage_1a**: Kettwiger Straße; Limbecker Straße; Porschekanzel; Porscheplatz
-- **lage_1b**: I. Dellbrügge; Kettwiger Straße; Limbecker Platz; Theaterplatz
-- **lage_2**: Am Glockenspiel; An St. Quintin; Flachsmarkt; Friedensplatz; Friedrich-Ebert-Straße; Kornmarkt; Limbecker Platz; Limbecker Straße; Rathenaustraße; Schwarze Horn
+- **lage_1a**: Kettwiger Straße; Limbecker Straße
+- **lage_1b**: I. Dellbrügge; Kastanienallee; Kennedyplatz; Kettwiger Straße; Limbecker Platz; Schwarze Horn; Theaterplatz
+- **lage_2**: Am Glockenspiel; An St. Quintin; Flachsmarkt; Friedensplatz; Friedrich-Ebert-Straße; Kennedyplatz; Kettwiger Straße; Kornmarkt; Limbecker Platz; Limbecker Straße; Porschekanzel; Porscheplatz; Rathenaustraße; Salzmarkt
 
 ## Schwellen (gewichtete Betriebe je 100 m Straßenfront)
 
 | lage | min_density | min_brand_share | secondary_chain_share | min_centrality_pct |
 |---|---|---|---|---|
-| lage_1a | 6.91 | 0.215 | 0.2 | – |
+| lage_1a | 7.9 | 0.162 | 0.2 | – |
 | lage_1b | 2.96 | – | – | 0.9 |
 | lage_2 | 3.95 | – | – | – |
 
@@ -39,8 +39,7 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 
 | nebenlage_id | length_km | poi_count | brand_share | lage_im_ergebnis | street_names |
 |---|---|---|---|---|---|
-| 1 | 0.036 | 3 | 0.333 | keine | Salzmarkt |
-| 2 | 0.085 | 5 | 0.6 | keine | Feilenstraße |
+| 1 | 0.05 | 5 | 0.2 | keine | Steeler Straße |
 
 ## Prüfungen
 
@@ -48,11 +47,11 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 |---|---|---|---|
 | OK | Genau 3 Lagen, gültig, nicht leer (1b darf leer sein) | leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| OK | Dichte 1a > 1b und 1a > 2 | 1a 14.94 / 1b 2.62 / 2 6.23 je 100 m | True |
-| WARNUNG | Dichte 1b > 2 | 1a 14.94 / 1b 2.62 / 2 6.23 je 100 m | False |
-| OK | lage_1a: Länge 0.6–1.2 km | 0.723 km | False |
-| WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.458 km → lage_1b.min_density (2.96) senken | False |
-| WARNUNG | lage_2: Länge 2.0–4.0 km | 0.962 km → lage_2.min_density (3.95) senken | False |
+| OK | Dichte 1a > 1b und 1a > 2 | 1a 16.88 / 1b 3.77 / 2 6.16 je 100 m | True |
+| WARNUNG | Dichte 1b > 2 | 1a 16.88 / 1b 3.77 / 2 6.16 je 100 m | False |
+| WARNUNG | lage_1a: Länge 0.6–1.2 km | 0.58 km → lage_1a.min_density (7.9) senken oder lage_1a.min_brand_share (0.162) senken | False |
+| WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.89 km → lage_1b.min_density (2.96) senken | False |
+| WARNUNG | lage_2: Länge 2.0–4.0 km | 1.024 km → lage_2.min_density (3.95) senken | False |
 
 ## Hinweise zur Methode
 

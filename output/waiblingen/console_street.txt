@@ -1,14 +1,14 @@
 
-Waiblingen, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 0b1bdcccf0)
-   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                     street_names
-lage_1a      1.214     2.28         75              7.60        0.307                                                    Albert-Roller-Straße; Alter Postplatz; Am Stadtgraben; Bahnhofstraße; Bürgermühlenweg; Fronackerstraße; Kurze Straße; Lange Straße; Postplatz
-lage_1b      1.314     2.86         53              4.20        0.057                                              Alter Postplatz; Am Stadtgraben; Blumenstraße; Fronackerstraße; Hadergasse; Lange Straße; Ludwigsburger Straße; Schmidener Straße; Winnender Straße
- lage_2      1.188     1.88         62              5.66        0.113 Bahnhofstraße; Beim Hochwachtturm; Bürgermühlenweg; Heinrich-Küderli-Straße; Kurze Straße; Marktgasse; Marktplatz; Obere Sackgasse; Untere Lindenstraße; Untere Sackgasse; Zehnthof; Zwerchgasse
-Schwellen: {'lage_1a': {'min_density': 4.19, 'min_brand_share': 0.119, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 1.8, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 2.39}}
+Waiblingen, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash f9e40f118e)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                                                   street_names
+lage_1a      1.152     2.20         71              7.47        0.310                                                                                             Albert-Roller-Straße; Alter Postplatz; Am Stadtgraben; Bahnhofstraße; Bürgermühlenweg; Fronackerstraße; Kurze Straße; Lange Straße
+lage_1b      1.074     1.73         46              4.27        0.065                                                                                Alter Postplatz; Am Stadtgraben; Bahnhofstraße; Blumenstraße; Fronackerstraße; Hadergasse; Lange Straße; Ludwigsburger Straße; Winnender Straße
+ lage_2      1.335     1.83         69              5.50        0.116 Bahnhofstraße; Beim Hochwachtturm; Bürgermühlenweg; Heinrich-Küderli-Straße; Kurze Straße; Marktgasse; Marktplatz; Obere Sackgasse; Postplatz; Schmidener Straße; Untere Lindenstraße; Untere Sackgasse; Zehnthof; Zwerchgasse
+Schwellen: {'lage_1a': {'min_density': 4.23, 'min_brand_share': 0.148, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 1.81, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 2.42}}
   [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: []
   [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
-  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 7.6 / 1b 4.2 / 2 5.66 je 100 m
-  [WARNUNG] Dichte 1b > 2: 1a 7.6 / 1b 4.2 / 2 5.66 je 100 m
-  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 1.214 km → lage_1a.min_density (4.19) erhöhen
-  [OK     ] lage_1b: Länge 1.0–2.0 km: 1.314 km
-  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.188 km → lage_2.min_density (2.39) senken
+  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 7.47 / 1b 4.27 / 2 5.5 je 100 m
+  [WARNUNG] Dichte 1b > 2: 1a 7.47 / 1b 4.27 / 2 5.5 je 100 m
+  [OK     ] lage_1a: Länge 0.6–1.2 km: 1.152 km
+  [OK     ] lage_1b: Länge 1.0–2.0 km: 1.074 km
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.335 km → lage_2.min_density (2.42) senken
