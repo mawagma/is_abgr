@@ -206,6 +206,13 @@ street:
     lage_1b: {min_density: 5}
     lage_2:  {min_density: 2}
   max_gap_segments: 1
+  # Auf die Heilbronn-Referenz kalibrierte Schwellen (Lauf vom 19.10.2026, report_heilbronn_compare_calibrated.md).
+  # use_calibrated_thresholds: true → gelten ohne auto_calibrate in jeder Stadt (gleiche Regel = vergleichbar).
+  use_calibrated_thresholds: true
+  calibrated_thresholds:
+    lage_1a: {min_density: 4.2, min_brand_share: 0.40}
+    lage_1b: {min_density: 3.76}
+    lage_2:  {min_density: 2.0}
   # 1a-Startpunkt: max_density (Vorgabe: Kette mit dem dichtesten Segment) | strongest_chain (Kette mit der
   # größten gewichteten POI-Summe). Heilbronn: max_density startet an der Stadtgalerie-Rückseite (Metzgergasse).
   seed: strongest_chain
@@ -230,3 +237,4 @@ street:
   touch_tolerance_m: 0.5                   # Zusammenhang: Segmente berühren sich (Endpunkt oder Kreuzung)
   plausibility:                 # Kaiser- und Sülmerstraße sind laut Expertenabgrenzung (19.10.2026) 1b
     "Heilbronn, Germany": ["Fleiner Straße"]
+    "Stuttgart, Germany": ["Königstraße"]

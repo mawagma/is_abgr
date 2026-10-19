@@ -302,7 +302,8 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
     seg = segment_metrics(seg, pois, nb, cfg)
     auto = st["auto_calibrate"] if auto_calibrate is None else auto_calibrate
     ref = reference_labels(seg, cfg)
-    th, log = calibrate(seg, adj, cfg, ref) if auto else (copy.deepcopy(st["thresholds"]), [])
+    base = st["calibrated_thresholds"] if st.get("use_calibrated_thresholds") else st["thresholds"]
+    th, log = calibrate(seg, adj, cfg, ref) if auto else (copy.deepcopy(base), [])
     lage, neben = classify_segments(seg, adj, th, st["max_gap_segments"], st["seed"])
     if ref is not None and st.get("lagen_from_reference"):
         # Expertenabgrenzung übernehmen: 1a/1b aus der Referenz, 2-Lage regelbasiert daran angeschlossen

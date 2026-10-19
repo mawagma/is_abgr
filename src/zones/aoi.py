@@ -7,13 +7,13 @@ from .pois import features
 
 
 def build_aoi(cfg):
-    """Suchraum = Kreis um place=city-Knoten, verschnitten mit der Verwaltungsgrenze (metrisch)."""
+    """Suchraum = Kreis um place=city/town-Knoten, verschnitten mit der Verwaltungsgrenze (metrisch)."""
     city, crs = cfg["city"], cfg["crs_metric"]
     boundary = ox.geocode_to_gdf(city).to_crs(crs).union_all()
     name = city.split(",")[0].strip()
     center, source = None, "place=city"
     try:
-        nodes = features(gpd.GeoSeries([boundary], crs=crs).to_crs(4326).iloc[0], {"place": "city"}, cfg)
+        nodes = features(gpd.GeoSeries([boundary], crs=crs).to_crs(4326).iloc[0], {"place": ["city", "town"]}, cfg)
         if "name" in nodes:
             nodes = nodes[(nodes.geom_type == "Point") & (nodes["name"] == name)]
             if len(nodes):
