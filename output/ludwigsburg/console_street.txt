@@ -1,14 +1,14 @@
 
-Ludwigsburg, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 8669e4a2d7)
+Ludwigsburg, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 544c974c7e)
    lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                                          street_names
-lage_1a      1.381     2.71        120             11.25        0.392                                                                                                                        Bahnhofstraße; Kirchstraße; Kronenstraße; Körnerstraße; Myliusstraße; Seestraße; Wilhelmstraße
+lage_1a      1.381     2.71        123             11.63        0.407                                                                                                                        Bahnhofstraße; Kirchstraße; Kronenstraße; Körnerstraße; Myliusstraße; Seestraße; Wilhelmstraße
 lage_1b      0.589     1.21         43              7.68        0.070                                                                                                                                                          Arsenalstraße; Bietigheimer Straße; Seestraße; Wilhelmstraße
- lage_2      1.643     2.94         90              6.07        0.144 Asperger Straße; Bahnhofstraße; Eberhardstraße; Hermannstraße; Holzmarkt; Holzmarktstraße; Kaffeeberg; Körnerstraße; Myliusstraße; Obere Marktstraße; Reithausberg; Reithausplatz; Schillerstraße; Untere Marktstraße
-Schwellen: {'lage_1a': {'min_density': 6.56, 'min_brand_share': 0.2, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 2.81, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 3.75}}
+ lage_2      1.643     2.94         94              6.41        0.160 Asperger Straße; Bahnhofstraße; Eberhardstraße; Hermannstraße; Holzmarkt; Holzmarktstraße; Kaffeeberg; Körnerstraße; Myliusstraße; Obere Marktstraße; Reithausberg; Reithausplatz; Schillerstraße; Untere Marktstraße
+Schwellen: {'lage_1a': {'min_density': 6.54, 'min_brand_share': 0.206, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 2.8, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 3.74}}
   [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: []
   [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
-  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 11.25 / 1b 7.68 / 2 6.07 je 100 m
-  [OK     ] Dichte 1b > 2: 1a 11.25 / 1b 7.68 / 2 6.07 je 100 m
-  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 1.381 km → lage_1a.min_density (6.56) erhöhen
-  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.589 km → lage_1b.min_density (2.81) senken
-  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.643 km → lage_2.min_density (3.75) senken
+  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 11.63 / 1b 7.68 / 2 6.41 je 100 m
+  [OK     ] Dichte 1b > 2: 1a 11.63 / 1b 7.68 / 2 6.41 je 100 m
+  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 1.381 km → lage_1a.min_density (6.54) erhöhen
+  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.589 km → lage_1b.min_density (2.8) senken
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.643 km → lage_2.min_density (3.74) senken

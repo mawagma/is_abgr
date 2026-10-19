@@ -19,9 +19,9 @@ Gleiche Regel in allen Städten: Schwellen aus der Heilbronn-Kalibrierung (confi
 | wuerzburg | street | 1a | 1.547 | 2.13 | 145 | 11.94 | 37% | Kaiserstraße, Eichhornstraße, Marktplatz, Kürschnerhof, Blasiusgasse |
 | wuerzburg | street | 1b | 1.357 | 2.41 | 101 | 8.27 | 15% | Semmelstraße, Marktplatz, Eichhornstraße, Dominikanerplatz, Bronnbachergasse |
 | wuerzburg | street | 2 | 3.493 | 4.69 | 246 | 7.52 | 9% | Juliuspromenade, Karmelitenstraße, Theaterstraße, Domstraße, Textorstraße |
-| ludwigsburg | street | 1a | 1.381 | 2.71 | 120 | 11.25 | 39% | Kirchstraße, Wilhelmstraße, Bahnhofstraße, Körnerstraße, Kronenstraße |
+| ludwigsburg | street | 1a | 1.381 | 2.71 | 123 | 11.63 | 41% | Kirchstraße, Wilhelmstraße, Bahnhofstraße, Körnerstraße, Kronenstraße |
 | ludwigsburg | street | 1b | 0.589 | 1.21 | 43 | 7.68 | 7% | Wilhelmstraße, Seestraße, Bietigheimer Straße, Arsenalstraße |
-| ludwigsburg | street | 2 | 1.643 | 2.94 | 90 | 6.07 | 14% | Eberhardstraße, Hermannstraße, Bahnhofstraße, Schillerstraße, Asperger Straße |
+| ludwigsburg | street | 2 | 1.643 | 2.94 | 94 | 6.41 | 16% | Eberhardstraße, Hermannstraße, Bahnhofstraße, Schillerstraße, Asperger Straße |
 | waiblingen | street | 1a | 1.214 | 2.28 | 75 | 7.6 | 31% | Kurze Straße, Fronackerstraße, Alter Postplatz, Bahnhofstraße, Albert-Roller-Straße |
 | waiblingen | street | 1b | 1.314 | 2.86 | 53 | 4.2 | 6% | Lange Straße, Schmidener Straße, Am Stadtgraben, Blumenstraße, Fronackerstraße |
 | waiblingen | street | 2 | 1.188 | 1.88 | 62 | 5.66 | 11% | Bahnhofstraße, Kurze Straße, Marktgasse, Untere Lindenstraße, Heinrich-Küderli-Straße |

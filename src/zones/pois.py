@@ -15,6 +15,8 @@ def configure_osmnx(cfg):
     ox.settings.cache_folder = cfg["cache_dir"]
     ox.settings.overpass_url = cfg["overpass_url"]
     ox.settings.requests_timeout = cfg["requests_timeout_s"]
+    # Server-Timeout fest im Abfragetext (= Cache-Schlüssel), damit ein kurzes HTTP-Timeout ihn nicht verändert
+    ox.settings.overpass_settings = f"[out:json][timeout:{cfg['requests_timeout_s']}]{{maxsize}}"
     # Statusabfrage vor jedem Request hängt bei gestörten Spiegeln minutenlang und verhindert den Cache-Treffer
     # beim Ersatzserver → abschaltbar
     ox.settings.overpass_rate_limit = cfg.get("overpass_rate_limit", True)
@@ -55,6 +57,16 @@ def features(polygon_4326, tags, cfg):
     """ox.features_from_polygon mit Wiederholung bei 5xx/Netzfehlern, reihum über die Spiegel; Ergebnis metrisch."""
     urls = [cfg["overpass_url"]] + cfg.get("overpass_fallback_urls", [])
     try:
+        # Runde 0: alle Spiegel mit kurzem Timeout → Cache-Treffer (unter der URL des liefernden Spiegels) sofort,
+        # gestörte Server blockieren nicht minutenlang
+        ox.settings.requests_timeout = cfg.get("cache_probe_timeout_s", 10)
+        for url in urls:
+            ox.settings.overpass_url = url
+            try:
+                return ox.features_from_polygon(polygon_4326, tags).reset_index().to_crs(cfg["crs_metric"])
+            except (ox._errors.ResponseStatusCodeError, requests.exceptions.RequestException):
+                pass
+        ox.settings.requests_timeout = cfg["requests_timeout_s"]
         for attempt in range(cfg["overpass_retries"] + 1):
             for url in urls:
                 ox.settings.overpass_url = url
@@ -67,6 +79,7 @@ def features(polygon_4326, tags, cfg):
         raise RuntimeError("Overpass: alle Spiegel und Wiederholungen fehlgeschlagen")
     finally:
         ox.settings.overpass_url = cfg["overpass_url"]
+        ox.settings.requests_timeout = cfg["requests_timeout_s"]
 
 
 def label(raw, rule_dict):

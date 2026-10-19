@@ -1,6 +1,6 @@
 # Lagevergleich Wertheim, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T15:32:06Z, Lauf 2026-10-19T16:39:55+00:00, params_hash `ce88f09632`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T19:04:39+00:00, params_hash `5f12424a4d`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Wertheim, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage

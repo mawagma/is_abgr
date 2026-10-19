@@ -1,6 +1,6 @@
 # Lagevergleich Würzburg, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T16:54:29+00:00, params_hash `b63d8e7809`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T19:05:28+00:00, params_hash `83f84ad5a7`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Würzburg, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
