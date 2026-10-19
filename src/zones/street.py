@@ -216,10 +216,11 @@ def relative_thresholds(seg, cfg):
                       "min_brand_share": round(f["lage_1a"]["brand_share"] * B, 3),
                       "secondary_chain_share": f["lage_1a"]["secondary_chain_share"]},
           "lage_1b": {"min_density": round(f["lage_1b"]["density"] * D, 2),
-                      "min_centrality_pct": f["lage_1b"]["centrality_pct"],
-                      "alt_min_density": round(f["lage_1b"]["alt_density"] * D, 2),
-                      "alt_min_brand_share": round(f["lage_1b"]["alt_brand_share"] * B, 3)},
+                      "min_centrality_pct": f["lage_1b"]["centrality_pct"]},
           "lage_2": {"min_density": round(f["lage_2"]["density"] * D, 2)}}
+    if "alt_density" in f["lage_1b"]:  # optionale Zusatzregel (getestet, für Heilbronn/Stuttgart nicht trennscharf)
+        th["lage_1b"].update(alt_min_density=round(f["lage_1b"]["alt_density"] * D, 2),
+                             alt_min_brand_share=round(f["lage_1b"]["alt_brand_share"] * B, 3))
     return th, {"D_ref": round(D, 2), "B_ref": round(B, 3)}
 
 
