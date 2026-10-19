@@ -1,6 +1,6 @@
 # Lagevergleich Öhringen, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T09:38:01Z, Lauf 2026-10-19T10:17:13+00:00, params_hash `146c649533`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T09:38:01Z, Lauf 2026-10-19T10:32:56+00:00, params_hash `146c649533`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Öhringen, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
