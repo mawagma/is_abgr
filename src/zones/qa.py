@@ -48,12 +48,15 @@ def street_checks(res, cfg):
          "detail": detail})
     z = res["zones"]
     g = list(z.geometry)
-    add("Genau 3 Lagen, gültig, nicht leer", True, len(g) == 3 and all(x.is_valid and not x.is_empty for x in g),
-        f"leer: {[l for l, x in zip(z['lage'], g) if x.is_empty]}")
+    may_be_empty = {"lage_1b"} if st.get("allow_empty_1b") else set()  # Kleinstädte: 1a + 2-Lage genügt
+    empty = [l for l, x in zip(z["lage"], g) if x.is_empty]
+    add("Genau 3 Lagen, gültig, nicht leer" + (" (1b darf leer sein)" if may_be_empty else ""), True,
+        len(g) == 3 and all(x.is_valid for x in g) and set(empty) <= may_be_empty, f"leer: {empty}")
     ov = max((a.intersection(b).area for a, b in combinations(g, 2)), default=0.0)
     add(f"Überlappung < {q['max_overlap_m2']} m²", True, ov < q["max_overlap_m2"], f"max. {ov:.4f} m²")
-    d = z["density_per_100m"].tolist()
-    add("Dichte 1a > 1b > 2", True, len(d) == 3 and d[0] > d[1] > d[2], " > ".join(map(str, d)) + " je 100 m")
+    d = [v for v, l in zip(z["density_per_100m"], z["lage"]) if l not in empty]  # leere 1b überspringen
+    add("Dichte 1a > 1b > 2", True, all(a > b for a, b in zip(d, d[1:])),
+        " > ".join(map(str, z["density_per_100m"])) + " je 100 m")
     th = res["thresholds"]
     for r in z.itertuples():
         lo, hi = res["targets_km"][r.lage]

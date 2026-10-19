@@ -218,9 +218,14 @@ street:
   # Faktoren per Gittersuche auf die Heilbronn-Referenz kalibriert (19.10.2026): F1 1a 0,95, F1 1b 0,71.
   # 1b = Besatz auf einer Hauptlaufachse im fußläufigen Zentrum; 2-Lage-Faktor so, dass Heilbronn ≈ 4 km 2-Lage hat.
   relative_thresholds:
-    lage_1a: {density: 0.35, brand_share: 0.8}
-    lage_1b: {density: 0.15, centrality_pct: 0.9}  # oberste 10 % lokale Zentralität (Umkreis 1a, ohne 1a)
+    # secondary_chain_share: weitere 1a-Ketten zählen als 1a, wenn ihr POI-Gewicht ≥ 20 % der Hauptkette ist
+    # (Stuttgart: Königstraße Nord 28 %; alle anderen Ketten in HN/S/Öhringen ≤ 11 %)
+    lage_1a: {density: 0.35, brand_share: 0.8, secondary_chain_share: 0.2}
+    # 1b = Laufachse (oberste 10 % lokale Zentralität, Umkreis 1a, ohne 1a) mit Mindestbesatz
+    #      ODER dichter Besatz mit hohem Filialanteil (Stuttgart: Calwer Straße)
+    lage_1b: {density: 0.15, centrality_pct: 0.9, alt_density: 0.3, alt_brand_share: 0.3}
     lage_2:  {density: 0.2}
+  allow_empty_1b: true          # Kleinstädte ohne eigenständige zweite Achse: 1a + 2-Lage
   centrality_radius_m: 600      # lokale Zentralität: fußläufiges Umfeld der 1a (≈ 7–8 Gehminuten)
   centrality_samples: 600       # Stichprobe Betweenness (Reproduzierbarkeit über centrality_seed)
   centrality_seed: 1

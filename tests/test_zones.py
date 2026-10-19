@@ -157,3 +157,18 @@ def test_lagen_from_reference(tmp_path):
                                                  "reference": {"Teststadt": str(tmp_path / "ref.geojson")}}}
     km = run_street(streets, pois, cfg, auto_calibrate=False)["zones"].set_index("lage")["length_km"]
     assert km["lage_1a"] == 0.1 and km["lage_1b"] == 0.1 and km["lage_2"] > 0
+
+
+def test_secondary_1a_chain():
+    """Zwei dichte Abschnitte, getrennt durch 300 m ohne Besatz → beide 1a (zweite Kette ≥ 20 % der ersten)."""
+    x0, y0 = CENTER
+    streets = gpd.GeoDataFrame({"name": ["Teststraße"], "highway": ["pedestrian"]},
+                               geometry=[LineString([(x0, y0), (x0 + 900, y0)])], crs=CFG["crs_metric"])
+    xs = list(np.arange(5, 300, 10)) + list(np.arange(605, 800, 10))
+    chain = [i % 2 == 0 for i in range(len(xs))]
+    pois = gpd.GeoDataFrame({"category": "retail", "chain": chain,
+                             "weight": [CFG["street"]["brand_weight"] if c else 1.0 for c in chain]},
+                            geometry=[Point(x0 + x, y0 + 10) for x in xs], crs=CFG["crs_metric"])
+    seg = run_street(streets, pois, {**CFG, "city": "Teststadt"}, auto_calibrate=False)["segments"]
+    x1a = seg.loc[seg["lage"] == "lage_1a"].geometry.centroid.x - x0
+    assert (x1a < 300).any() and (x1a > 600).any()

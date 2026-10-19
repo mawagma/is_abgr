@@ -144,8 +144,9 @@ def classify_segments(seg, adj, th, gap, seed="max_density"):
     lage = np.full(len(seg), "", dtype=object)
     if not ok1a.any():
         return lage, []
+    w = seg["poi_w"].to_numpy()
     if seed == "strongest_chain":
-        w, rest, z1 = seg["poi_w"].to_numpy(), set(np.flatnonzero(ok1a)), set()
+        rest, z1 = set(np.flatnonzero(ok1a)), set()
         while rest:
             c = _chain({rest.pop()}, ok1a, adj, gap)
             rest -= c
@@ -153,9 +154,19 @@ def classify_segments(seg, adj, th, gap, seed="max_density"):
                 z1 = c
     else:
         z1 = _chain({int(np.flatnonzero(ok1a)[np.argmax(d[ok1a])])}, ok1a, adj, gap)
+    share = th["lage_1a"].get("secondary_chain_share")
+    if share:  # weitere 1a-Ketten (Großstädte), wenn sie stark genug sind
+        main, rest = w[list(z1)].sum(), set(np.flatnonzero(ok1a)) - z1
+        while rest:
+            c = _chain({rest.pop()}, ok1a, adj, gap)
+            rest -= c
+            if w[list(c)].sum() >= share * main:
+                z1 = z1 | c
     ok = d >= th["lage_1b"]["min_density"]
     if "min_centrality_pct" in th["lage_1b"]:  # 1b nur auf zentralen Laufachsen
         ok &= seg["central_pct"].to_numpy() >= th["lage_1b"]["min_centrality_pct"]
+    if "alt_min_density" in th["lage_1b"]:  # oder: dichter Besatz mit hohem Filialanteil abseits der Laufachsen
+        ok |= (d >= th["lage_1b"]["alt_min_density"]) & (bs >= th["lage_1b"]["alt_min_brand_share"])
     ok[list(z1)] = True
     z12 = _chain(z1, ok, adj, gap)
     ok = d >= th["lage_2"]["min_density"]
@@ -202,9 +213,12 @@ def relative_thresholds(seg, cfg):
     B = float(top["brand_count"].sum() / top["poi_count"].sum()) if top["poi_count"].sum() else 0.0
     f = st["relative_thresholds"]
     th = {"lage_1a": {"min_density": round(f["lage_1a"]["density"] * D, 2),
-                      "min_brand_share": round(f["lage_1a"]["brand_share"] * B, 3)},
+                      "min_brand_share": round(f["lage_1a"]["brand_share"] * B, 3),
+                      "secondary_chain_share": f["lage_1a"]["secondary_chain_share"]},
           "lage_1b": {"min_density": round(f["lage_1b"]["density"] * D, 2),
-                      "min_centrality_pct": f["lage_1b"]["centrality_pct"]},
+                      "min_centrality_pct": f["lage_1b"]["centrality_pct"],
+                      "alt_min_density": round(f["lage_1b"]["alt_density"] * D, 2),
+                      "alt_min_brand_share": round(f["lage_1b"]["alt_brand_share"] * B, 3)},
           "lage_2": {"min_density": round(f["lage_2"]["density"] * D, 2)}}
     return th, {"D_ref": round(D, 2), "B_ref": round(B, 3)}
 
