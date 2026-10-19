@@ -168,6 +168,8 @@ categories:
     healthcare: true
     amenity: [doctors, dentist]
 exclude_prefixes: ["disused:", "abandoned:"]
+# POIs in Einkaufszentren (shop=mall-Flächen) zählen nicht: Frequenz im Center ist keine Straßenfrequenz
+exclude_malls: true
 
 # nur Kontext/Karte
 context:
@@ -206,11 +208,21 @@ street:
   max_gap_segments: 1
   # 1a-Startpunkt: max_density (Vorgabe: Kette mit dem dichtesten Segment) | strongest_chain (Kette mit der
   # größten gewichteten POI-Summe). Heilbronn: max_density startet an der Stadtgalerie-Rückseite (Metzgergasse).
-  seed: max_density
+  seed: strongest_chain
   min_hole_ha: 0.2
   target_ranges_km: {lage_1a: [0.6, 1.2], lage_1b: [1.0, 2.0], lage_2: [2.0, 4.0]}
-  target_ranges_ha: {lage_1a: [3, 6], lage_1b: [5, 10], lage_2: [10, 20]}
+  # ha-Ziele entfallen: Polygone sind nur noch Straßenraum (Puffer minus Gebäude)
   auto_calibrate: false
+  # Kalibrierung auf eine Expertenabgrenzung (falls für die Stadt vorhanden): Schwellen für 1a und 1b werden so
+  # gewählt, dass die Referenzsegmente möglichst genau getroffen werden (F1 über Länge); 2-Lage weiter über
+  # target_ranges_km. km-Ziele für 1a/1b = Referenzlänge ± reference_tolerance.
+  reference:
+    "Heilbronn, Germany": reference/heilbronn_lagen.geojson
+  reference_match_m: 5          # Segment gehört zur Referenz, wenn sein Mittelpunkt ≤ 5 m von ihr entfernt liegt
+  reference_tolerance: 0.25
+  # Auswertungspolygon = Straßenraum: Puffer (buffer_m) um die Achsen minus Gebäude und Malls
+  street_space_only: true
+  building_query_radius_m: 1000
   calibration_iterations: 40
   highway: [pedestrian, living_street, residential, unclassified, tertiary, secondary, primary]
   highway_named_only: [footway, path]      # nur mit name-Tag

@@ -9,6 +9,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
+import shapely
 import yaml
 
 from .aoi import build_aoi
@@ -16,9 +17,9 @@ from .classify import assign_zones, classify, limit_area
 from .export import write_all, write_street, zone_attributes
 from .grid import build_grid
 from .polygons import zone_polygons
-from .pois import categorize, configure_osmnx, context, fetch_osm
+from .pois import categorize, configure_osmnx, context, fetch_osm, mall_polygons
 from .qa import run_checks, street_checks
-from .street import load_streets, run_street
+from .street import load_buildings, load_streets, run_street
 
 
 def build_zones(pois, aoi, cfg, method):
@@ -83,7 +84,7 @@ def main(argv=None):
     pois = categorize(raw, cfg)
     pois = pois[pois.within(aoi)].reset_index(drop=True)  # Flächen am Rand: repräsentativer Punkt außerhalb
     if cfg["mode"] == "street":
-        return main_street(cfg, aoi, raw, pois, overrides)
+        return main_street(cfg, aoi, center, raw, pois, overrides)
     res = build_zones(pois, aoi, cfg, method)
 
     sens = []
@@ -119,9 +120,12 @@ def main(argv=None):
     return 1 if any(c["hard"] and not c["ok"] for c in checks) else 0
 
 
-def main_street(cfg, aoi, raw, pois, overrides):
+def main_street(cfg, aoi, center, raw, pois, overrides):
     """Street-Modus; zum Vergleich wird der Rastermodus mit denselben POIs mitgerechnet."""
-    res = run_street(load_streets(aoi, cfg), pois, cfg)
+    obstacles = None
+    if cfg["street"]["street_space_only"]:  # Auswertungspolygon nur Straßenraum: ohne Gebäude und Malls
+        obstacles = shapely.union_all([*load_buildings(center, cfg).to_numpy(), mall_polygons(raw)])
+    res = run_street(load_streets(aoi, cfg), pois, cfg, obstacles=obstacles)
     grid_zones = build_zones(pois, aoi, cfg, cfg["classification"])["zones"]
     checks = street_checks(res, cfg)
     params_hash = hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:10]

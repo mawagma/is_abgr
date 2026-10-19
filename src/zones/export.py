@@ -190,6 +190,11 @@ def write_street_map(path, res):
     folium.GeoJson(ll(seg[seg["lage"] != ""][cols]).round(2), name="Segmente nach Lage",
                    style_function=lambda f: {"color": LAGE_COLORS[f["properties"]["lage"]], "weight": 6},
                    tooltip=folium.GeoJsonTooltip(cols[:-1])).add_to(m)
+    if "ref_lage" in seg:
+        ref = seg[seg["ref_lage"] != ""][["seg_id", "street", "ref_lage", "geometry"]]
+        folium.GeoJson(ll(ref), name="Referenz (Expertenabgrenzung)", style_function=lambda f: {
+            "color": "#000", "weight": 2, "dashArray": "4 6"}, tooltip=folium.GeoJsonTooltip(["street", "ref_lage"])
+                       ).add_to(m)
     if len(res["nebenlagen"]):
         folium.GeoJson(ll(res["nebenlagen"]), name="Nebenlagen (1a-Schwelle, nicht verbunden)",
                        style_function=lambda f: {"color": "#6a3d9a", "weight": 7, "dashArray": "6 6"}).add_to(m)
@@ -210,9 +215,8 @@ def write_compare_report(path, res, grid_zones, cfg, checks, meta):
     g = polygon_stats(grid_zones, res["segments"], res["pois"], "zone_id")
     rows = []
     for l in ("lage_1a", "lage_1b", "lage_2"):
-        rows.append({"Lage": l, "Ziel km": "–".join(map(str, st["target_ranges_km"][l])),
+        rows.append({"Lage": l, "Ziel km": "–".join(map(str, res["targets_km"][l])),
                      "Raster km": g.at[l, "length_km"], "Street km": s.at[l, "length_km"],
-                     "Ziel ha": "–".join(map(str, st["target_ranges_ha"][l])),
                      "Raster ha": g.at[l, "area_ha"], "Street ha": s.at[l, "area_ha"],
                      "Raster POIs": g.at[l, "poi_count"], "Street POIs": s.at[l, "poi_count"],
                      "Raster Filialanteil": g.at[l, "brand_share"], "Street Filialanteil": s.at[l, "brand_share"]})
@@ -236,6 +240,11 @@ def write_compare_report(path, res, grid_zones, cfg, checks, meta):
         "## Schwellen (gewichtete Betriebe je 100 m Straßenfront)", "",
         _md_table(th.fillna("–")), "",
     ]
+    if res.get("reference_match"):
+        lines += ["## Übereinstimmung mit der Referenz (Expertenabgrenzung, Segmentlänge)", "",
+                  f"Referenz: `{st['reference'][cfg['city']]}`; km-Ziele für 1a/1b = Referenzlänge "
+                  f"± {st['reference_tolerance']:.0%}.", "",
+                  _md_table(pd.DataFrame(res["reference_match"]).T.reset_index(names="lage")), ""]
     if res["calibration"]:
         lines += ["Automatisch kalibriert (Bisektion auf die Mitte von target_ranges_km; Schwellen bleiben absteigend, "
                   "die Obergrenze je Lage ist die Schwelle der Lage darüber):", "",
@@ -251,6 +260,11 @@ def write_compare_report(path, res, grid_zones, cfg, checks, meta):
               f"{st['segment_length_m']} m (sonst erzeugen Stummel extreme Werte).",
               "- Glättung über Segmente mit gemeinsamem Endpunkt; Zusammenhang der Lagen über Berührung "
               "(Endpunkte und Kreuzungen), Lücken bis max_gap_segments werden überbrückt und der Lage zugeschlagen.",
+              f"- Auswertungspolygon: Puffer {st['buffer_m']} m um die Achsen"
+              + (" minus OSM-Gebäude und Einkaufszentren (nur Straßenraum); Teile ohne Kontakt zur Achse entfallen. "
+                 "Die Rasterpolygone enthalten dagegen Gebäude – Flächen nicht direkt vergleichbar."
+                 if st.get("street_space_only") else "."),
+              "- POIs in Einkaufszentren (shop=mall) zählen nicht." if cfg.get("exclude_malls") else "",
               "- Fußgängerflächen (Plätze als Fläche) gehen nicht als Segment ein; POIs dort werden der nächsten Straße "
               "zugeordnet.",
               "- Doppelt geführte Straßen (zwei Richtungsfahrbahnen) zählen mit doppelter Länge → niedrigere Dichte.", ""]

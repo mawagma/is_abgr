@@ -174,14 +174,54 @@ def lage_lengths_km(seg, lage):
     return {l: seg["length_m"].to_numpy()[lage == l].sum() / 1000 for l in LAGEN}
 
 
-def calibrate(seg, adj, cfg):
-    """Dichteschwelle je Lage (nacheinander 1a, 1b, 2) per Bisektion, bis die Straßenlänge möglichst nah an der
-    Mitte von target_ranges_km liegt. Schwellen bleiben absteigend (1a ≥ 1b ≥ 2)."""
+def reference_labels(seg, cfg):
+    """Referenzlage je Segment ('' = keine) aus der Expertenabgrenzung der Stadt, sonst None."""
+    st = cfg["street"]
+    path = (st.get("reference") or {}).get(cfg["city"])
+    if not path:
+        return None
+    ref = gpd.read_file(path).to_crs(seg.crs)
+    mid = seg.geometry.interpolate(0.5, normalized=True)
+    lab = np.full(len(seg), "", dtype=object)
+    for l in ("lage_1b", "lage_1a"):  # 1a zuletzt: gewinnt bei Überschneidung
+        g = ref.loc[ref["lage"] == l].union_all()
+        if not g.is_empty:
+            lab[(mid.distance(g) <= st["reference_match_m"]).to_numpy()] = l
+    return lab
+
+
+def reference_match(seg, lage, ref):
+    """Precision/Recall/F1 über Segmentlänge je Lage."""
+    L, out = seg["length_m"].to_numpy(), {}
+    for l in ("lage_1a", "lage_1b"):
+        pred, truth = lage == l, ref == l
+        tp, p, r = L[pred & truth].sum(), L[pred].sum(), L[truth].sum()
+        out[l] = {"precision": round(tp / p, 3) if p else 0.0, "recall": round(tp / r, 3) if r else 0.0,
+                  "f1": round(2 * tp / (p + r), 3) if p + r else 0.0}
+    return out
+
+
+def calibrate(seg, adj, cfg, ref=None):
+    """Dichteschwellen nacheinander für 1a, 1b, 2; absteigend (1a ≥ 1b ≥ 2).
+    Mit Referenz: 1a und 1b per Gittersuche über alle Segmentdichten mit maximalem F1 zur Referenz.
+    Ohne Referenz (und immer für die 2-Lage): Bisektion auf die Mitte von target_ranges_km."""
     st = cfg["street"]
     th = copy.deepcopy(st["thresholds"])
     log = []
     hi_cap = float(seg["density"].max())
+    cls = lambda: classify_segments(seg, adj, th, st["max_gap_segments"], st["seed"])[0]
     for l in LAGEN:
+        if ref is not None and l != "lage_2":
+            best = None
+            for t in sorted({round(x, 2) for x in seg["density"] if 0 < x <= hi_cap}):
+                th[l]["min_density"] = t
+                m = reference_match(seg, cls(), ref)[l]
+                if best is None or m["f1"] > best[1]["f1"]:
+                    best = (t, m)
+            th[l]["min_density"] = hi_cap = best[0]
+            log.append({"lage": l, "verfahren": "Referenz (max. F1)", "start": st["thresholds"][l]["min_density"],
+                        "schwelle": best[0], **best[1]})
+            continue
         target = float(np.mean(st["target_ranges_km"][l]))
         lo, hi = 0.0, hi_cap
         best = (np.inf, th[l]["min_density"], None)
@@ -197,19 +237,25 @@ def calibrate(seg, adj, cfg):
                 hi = mid
         th[l]["min_density"] = round(best[1], 2)
         hi_cap = th[l]["min_density"]
-        log.append({"lage": l, "ziel_km": target, "schwelle": th[l]["min_density"],
+        log.append({"lage": l, "verfahren": "Bisektion auf Ziel-km", "ziel_km": target, "schwelle": th[l]["min_density"],
                     "start": st["thresholds"][l]["min_density"], "erreicht_km": round(best[2] or 0, 3)})
     return th, log
 
 
-def street_polygons(seg, cfg):
-    """Segmente je Lage puffern (flache Enden), vereinigen, Löcher füllen; Ringe 1b −= 1a, 2 −= 1a ∪ 1b."""
+def street_polygons(seg, cfg, obstacles=None):
+    """Segmente je Lage puffern (flache Enden), vereinigen, Löcher füllen; Ringe 1b −= 1a, 2 −= 1a ∪ 1b.
+    obstacles (Gebäude, Malls): werden abgezogen → nur Straßenraum; Teile ohne Kontakt zur Achse entfallen."""
     st = cfg["street"]
     cum = []
     for k in range(3):
         sel = seg[seg["lage"].isin(LAGEN[:k + 1])]
         g = shapely.union_all(sel.geometry.buffer(st["buffer_m"], cap_style="flat").to_numpy())
-        cum.append(_fill_holes(g, st["min_hole_ha"] * 1e4) if not g.is_empty else g)
+        if not g.is_empty:
+            g = _fill_holes(g, st["min_hole_ha"] * 1e4)
+            if obstacles is not None:
+                axes = shapely.union_all(sel.geometry.to_numpy())
+                g = shapely.union_all([p for p in shapely.get_parts(g.difference(obstacles)) if p.intersects(axes)])
+        cum.append(g)
     m = cfg["min_part_m2"]
     z1 = _polygonal(cum[0], m)
     z2 = _polygonal(cum[1].difference(z1), m)
@@ -248,16 +294,34 @@ def nebenlagen_gdf(seg, neben):
         {"nebenlage_id": [], "geometry": []}, geometry="geometry", crs=seg.crs)
 
 
-def run_street(streets, pois, cfg, auto_calibrate=None):
+def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
     """Kern-Pipeline ohne Netz (Tests): Segmente → Zuordnung → Kennwerte → (Kalibrierung) → Lagen → Polygone."""
     st = cfg["street"]
     seg, nb, adj = build_segments(streets, cfg)
     pois = assign_pois(pois, seg, cfg)
     seg = segment_metrics(seg, pois, nb, cfg)
     auto = st["auto_calibrate"] if auto_calibrate is None else auto_calibrate
-    th, log = calibrate(seg, adj, cfg) if auto else (copy.deepcopy(st["thresholds"]), [])
+    ref = reference_labels(seg, cfg)
+    th, log = calibrate(seg, adj, cfg, ref) if auto else (copy.deepcopy(st["thresholds"]), [])
     lage, neben = classify_segments(seg, adj, th, st["max_gap_segments"], st["seed"])
     seg["lage"] = lage
-    zones = zone_attributes(street_polygons(seg, cfg), seg)
+    targets = {l: list(v) for l, v in st["target_ranges_km"].items()}
+    if ref is not None:  # km-Ziele aus der Referenz ableiten
+        seg["ref_lage"] = ref
+        tol = st["reference_tolerance"]
+        for l in ("lage_1a", "lage_1b"):
+            km = seg.loc[ref == l, "length_m"].sum() / 1000
+            targets[l] = [round(km * (1 - tol), 2), round(km * (1 + tol), 2)]
+    zones = zone_attributes(street_polygons(seg, cfg, obstacles), seg)
     return {"segments": seg, "pois": pois, "zones": zones, "nebenlagen": nebenlagen_gdf(seg, neben),
-            "thresholds": th, "calibration": log, "auto_calibrate": auto}
+            "thresholds": th, "calibration": log, "auto_calibrate": auto, "targets_km": targets,
+            "reference_match": reference_match(seg, lage, ref) if ref is not None else None}
+
+
+def load_buildings(center, cfg):
+    """Gebäudeumrisse im Kreis building_query_radius_m um das Zentrum (fester Abfragekreis → stabiler Cache).
+    shortcut: Lagen außerhalb des Kreises werden nicht um Gebäude bereinigt; bei größeren Städten Radius erhöhen."""
+    crs = cfg["crs_metric"]
+    circle = gpd.GeoSeries([center.buffer(cfg["street"]["building_query_radius_m"])], crs=crs).to_crs(4326).iloc[0]
+    b = features(circle, {"building": True}, cfg)
+    return b.loc[b.geom_type.isin(["Polygon", "MultiPolygon"]), "geometry"]

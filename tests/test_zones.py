@@ -5,9 +5,10 @@ import yaml
 from shapely.geometry import LineString, Point
 
 import pandas as pd
+import shapely
 
 from zones.cli import build_zones
-from zones.pois import size_factor
+from zones.pois import categorize, size_factor
 from zones.qa import run_checks, street_checks
 from zones.street import run_street
 
@@ -94,7 +95,7 @@ def synthetic_street():
 
 def test_street_dense_section_is_1a():
     streets, pois = synthetic_street()
-    res = run_street(streets, pois, CFG, auto_calibrate=False)
+    res = run_street(streets, pois, {**CFG, "city": "Teststadt"}, auto_calibrate=False)
     seg, zones = res["segments"], res["zones"]
     L = CFG["street"]["segment_length_m"]
     len_1a = seg.loc[seg["lage"] == "lage_1a", "length_m"].sum()
@@ -107,8 +108,39 @@ def test_street_dense_section_is_1a():
 
 def test_street_calibration_hits_target_length():
     streets, pois = synthetic_street()
-    cfg = {**CFG, "street": {**CFG["street"], "target_ranges_km": {"lage_1a": [0.1, 0.1], "lage_1b": [0.1, 0.1],
+    cfg = {**CFG, "city": "Teststadt", "street": {**CFG["street"], "target_ranges_km": {"lage_1a": [0.1, 0.1], "lage_1b": [0.1, 0.1],
                                                                     "lage_2": [0.1, 0.1]}}}
     res = run_street(streets, pois, cfg, auto_calibrate=True)
     km = res["zones"].set_index("lage")["length_km"]
     assert abs(km["lage_1a"] - 0.1) <= CFG["street"]["segment_length_m"] / 1000
+
+
+def test_street_reference_calibration(tmp_path):
+    """Referenz = dichter Abschnitt 0–200 m als 1a → Kalibrierung trifft sie (F1 hoch)."""
+    streets, pois = synthetic_street()
+    x0, y0 = CENTER
+    ref = gpd.GeoDataFrame({"lage": ["lage_1a"]}, geometry=[LineString([(x0, y0), (x0 + 200, y0)])],
+                           crs=CFG["crs_metric"])
+    ref.to_file(tmp_path / "ref.geojson", driver="GeoJSON")
+    cfg = {**CFG, "city": "Teststadt",
+           "street": {**CFG["street"], "reference": {"Teststadt": str(tmp_path / "ref.geojson")}}}
+    res = run_street(streets, pois, cfg, auto_calibrate=True)
+    assert res["reference_match"]["lage_1a"]["f1"] >= 0.8
+    assert res["targets_km"]["lage_1a"] == [0.15, 0.25]
+
+
+def test_street_space_excludes_buildings():
+    streets, pois = synthetic_street()
+    x0, y0 = CENTER
+    building = shapely.box(x0 + 50, y0 + 5, x0 + 150, y0 + 30)  # Gebäude an der Nordseite des 1a-Abschnitts
+    res = run_street(streets, pois, {**CFG, "city": "Teststadt"}, auto_calibrate=False, obstacles=building)
+    assert all(g.intersection(building).area < 1e-6 for g in res["zones"].geometry)
+    assert res["zones"].geometry.iloc[0].contains(Point(x0 + 100, y0))  # Straßenachse bleibt drin
+
+
+def test_mall_tenants_excluded():
+    mall = shapely.box(0, 0, 100, 100)
+    raw = gpd.GeoDataFrame({"element": ["way", "node", "node"], "id": [1, 2, 3], "shop": ["mall", "clothes", "shoes"],
+                            "name": ["Center", "In Mall", "Straße"]},
+                           geometry=[mall, Point(50, 50), Point(150, 50)], crs=CFG["crs_metric"])
+    assert list(categorize(raw, CFG)["name"]) == ["Straße"]

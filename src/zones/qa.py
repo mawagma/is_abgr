@@ -56,18 +56,23 @@ def street_checks(res, cfg):
     add("Dichte 1a > 1b > 2", True, len(d) == 3 and d[0] > d[1] > d[2], " > ".join(map(str, d)) + " je 100 m")
     th = res["thresholds"]
     for r in z.itertuples():
-        lo, hi = st["target_ranges_km"][r.lage]
+        lo, hi = res["targets_km"][r.lage]
         dens = f"{r.lage}.min_density ({th[r.lage]['min_density']})"
         tip = "" if lo <= r.length_km <= hi else (f" → {dens} erhöhen" if r.length_km > hi else f" → {dens} senken"
             + (f" oder lage_1a.min_brand_share ({th['lage_1a']['min_brand_share']}) senken"
                if r.lage == "lage_1a" else ""))
         add(f"{r.lage}: Länge {lo}–{hi} km", False, lo <= r.length_km <= hi, f"{r.length_km} km{tip}")
+        if "target_ranges_ha" not in st:
+            continue
         lo_a, hi_a = st["target_ranges_ha"][r.lage]
         in_len = lo <= r.length_km <= hi
         tip = "" if lo_a <= r.area_ha <= hi_a else (
             f" → buffer_m ({st['buffer_m']}) {'verkleinern' if r.area_ha > hi_a else 'vergrößern'}" if in_len
             else " → folgt der Länge (siehe oben)")
         add(f"{r.lage}: Fläche {lo_a}–{hi_a} ha", False, lo_a <= r.area_ha <= hi_a, f"{r.area_ha} ha{tip}")
+    for l, m in (res.get("reference_match") or {}).items():
+        add(f"{l}: Übereinstimmung mit Referenz (F1 ≥ 0.8)", False, m["f1"] >= 0.8,
+            f"F1 {m['f1']}, Precision {m['precision']}, Recall {m['recall']}")
     seg = res["segments"]
     names = set(seg.loc[seg["lage"] == "lage_1a", "street"].dropna())
     for n in st["plausibility"].get(cfg["city"], []):

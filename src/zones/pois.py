@@ -6,6 +6,7 @@ import numpy as np
 import osmnx as ox
 import pandas as pd
 import requests
+import shapely
 
 
 def configure_osmnx(cfg):
@@ -81,6 +82,11 @@ def categorize(raw, cfg):
         or [pd.Series(False, index=raw.index)]
     )
     raw = raw[~dead]
+    if cfg.get("exclude_malls"):
+        malls = mall_polygons(raw)
+        inside = raw.geometry.representative_point().within(malls) if not malls.is_empty else False
+        shop = raw["shop"] if "shop" in raw else pd.Series(None, index=raw.index, dtype=object)
+        raw = raw[~(inside | (shop == "mall"))]
     ground = cfg.get("poi_model", "categories") == "ground_floor"
     cat = label(raw, cfg["ground_floor_categories"] if ground else cfg["categories"])
     sel = raw[cat.notna()]
@@ -98,6 +104,14 @@ def categorize(raw, cfg):
         pois["size_factor"] = size_factor(sel, pois["category"], cfg["size_weighting"])
         pois["weight"] = pois["category"].map(cfg["weights"]).astype(float) * pois["size_factor"]
     return dedupe(pois.reset_index(drop=True), cfg["dedupe_m"])
+
+
+def mall_polygons(raw):
+    """Vereinigte Flächen der Einkaufszentren (shop=mall), metrisch."""
+    if "shop" not in raw:
+        return shapely.Polygon()
+    m = raw[(raw["shop"] == "mall") & raw.geom_type.isin(["Polygon", "MultiPolygon"])]
+    return shapely.union_all(m.geometry.to_numpy())
 
 
 def size_factor(raw, category, sw):
