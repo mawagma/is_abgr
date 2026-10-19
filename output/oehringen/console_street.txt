@@ -1,13 +1,13 @@
 
-Öhringen, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 146c649533)
+Öhringen, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 889d7457c5)
    lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                             street_names
 lage_1a      0.633     1.04         46              7.86        0.109                                                                                                                                                          Kirchgasse; Marktplatz; Marktstraße; Poststraße
-lage_1b      0.000     0.00          0              0.00        0.000                                                                                                                                                                                                         
- lage_2      1.663     3.12         54              3.43        0.074 Bahnhofstraße; Bismarckstraße; Büttelbronner Straße; Farbgasse; Haagweg; Heilbronner Straße; Hirschgasse; Ledergasse; Poststraße; Probsthof; Rathausstraße; Schafgasse; Schillerstraße; Untere Torstraße
-Schwellen: {'lage_1a': {'min_density': 3.34, 'min_brand_share': 0.067}, 'lage_1b': {'min_density': 1.43, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 1.91}}
-  [FEHLER ] Genau 3 Lagen, gültig, nicht leer: leer: ['lage_1b']
+lage_1b      0.094     0.16          3              4.01        0.333                                                                                                                                                                                            Bahnhofstraße
+ lage_2      1.570     2.95         51              3.39        0.059 Bahnhofstraße; Bismarckstraße; Büttelbronner Straße; Farbgasse; Haagweg; Heilbronner Straße; Hirschgasse; Ledergasse; Poststraße; Probsthof; Rathausstraße; Schafgasse; Schillerstraße; Untere Torstraße
+Schwellen: {'lage_1a': {'min_density': 3.34, 'min_brand_share': 0.067, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 1.43, 'min_centrality_pct': 0.9, 'alt_min_density': 2.86, 'alt_min_brand_share': 0.025}, 'lage_2': {'min_density': 1.91}}
+  [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: []
   [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
-  [FEHLER ] Dichte 1a > 1b > 2: 7.86 > 0.0 > 3.43 je 100 m
+  [OK     ] Dichte 1a > 1b > 2: 7.86 > 4.01 > 3.39 je 100 m
   [OK     ] lage_1a: Länge 0.6–1.2 km: 0.633 km
-  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.0 km → lage_1b.min_density (1.43) senken
-  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.663 km → lage_2.min_density (1.91) senken
+  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.094 km → lage_1b.min_density (1.43) senken
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.57 km → lage_2.min_density (1.91) senken
