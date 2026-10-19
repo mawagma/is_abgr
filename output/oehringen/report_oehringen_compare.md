@@ -1,6 +1,6 @@
 # Lagevergleich Öhringen, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T08:28:36Z, Lauf 2026-10-19T08:30:40+00:00, params_hash `61571f6770`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T09:38:01Z, Lauf 2026-10-19T10:17:13+00:00, params_hash `146c649533`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Öhringen, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -9,46 +9,50 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 
 | Lage | Ziel km | Raster km | Street km | Raster ha | Street ha | Raster POIs | Street POIs | Raster Filialanteil | Street Filialanteil |
 |---|---|---|---|---|---|---|---|---|---|
-| lage_1a | 0.6–1.2 | 1.42 | 0.046 | 4.29 | 0.11 | 73 | 2 | 0.096 | 0.5 |
+| lage_1a | 0.6–1.2 | 1.42 | 0.633 | 4.29 | 1.04 | 73 | 46 | 0.096 | 0.109 |
 | lage_1b | 1.0–2.0 | 1.6 | 0.0 | 5.08 | 0.0 | 38 | 0 | 0.105 | 0.0 |
-| lage_2 | 2.0–4.0 | 1.81 | 0.0 | 8.3 | 0.0 | 20 | 0 | 0.15 | 0.0 |
+| lage_2 | 2.0–4.0 | 1.81 | 1.663 | 8.3 | 3.12 | 20 | 54 | 0.15 | 0.074 |
 
 ## Street-Modus: Lagen (Kennwerte über die zugeordneten Segmente)
 
 | lage | length_km | area_ha | poi_count | density_per_100m | brand_share |
 |---|---|---|---|---|---|
-| lage_1a | 0.046 | 0.11 | 2 | 5.97 | 0.5 |
+| lage_1a | 0.633 | 1.04 | 46 | 7.86 | 0.109 |
 | lage_1b | 0.0 | 0.0 | 0 | 0.0 | 0.0 |
-| lage_2 | 0.0 | 0.0 | 0 | 0.0 | 0.0 |
+| lage_2 | 1.663 | 3.12 | 54 | 3.43 | 0.074 |
 
 ## Straßennamen je Lage
 
-- **lage_1a**: Bahnhof
+- **lage_1a**: Kirchgasse; Marktplatz; Marktstraße; Poststraße
 - **lage_1b**: –
-- **lage_2**: –
+- **lage_2**: Bahnhofstraße; Bismarckstraße; Büttelbronner Straße; Farbgasse; Haagweg; Heilbronner Straße; Hirschgasse; Ledergasse; Poststraße; Probsthof; Rathausstraße; Schafgasse; Schillerstraße; Untere Torstraße
 
 ## Schwellen (gewichtete Betriebe je 100 m Straßenfront)
 
-| lage | min_density | min_brand_share |
-|---|---|---|
-| lage_1a | 4.2 | 0.4 |
-| lage_1b | 3.76 | – |
-| lage_2 | 2.0 | – |
+| lage | min_density | min_brand_share | min_centrality_pct |
+|---|---|---|---|
+| lage_1a | 3.34 | 0.067 | – |
+| lage_1b | 1.43 | – | 0.9 |
+| lage_2 | 1.91 | – | – |
 
 ## Nebenlagen (erfüllen die 1a-Schwelle, ohne Verbindung zur 1a)
 
-keine
+| nebenlage_id | length_km | poi_count | brand_share | lage_im_ergebnis | street_names |
+|---|---|---|---|---|---|
+| 1 | 0.046 | 2 | 0.5 | keine | Bahnhof |
+| 2 | 0.05 | 2 | 0.5 | keine | Karlsvorstadt |
+| 3 | 0.05 | 1 | 1.0 | lage_2 | Büttelbronner Straße |
 
 ## Prüfungen
 
 | status | check | detail | hart |
 |---|---|---|---|
-| FEHLER | Genau 3 Lagen, gültig, nicht leer | leer: ['lage_1b', 'lage_2'] | True |
+| FEHLER | Genau 3 Lagen, gültig, nicht leer | leer: ['lage_1b'] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| FEHLER | Dichte 1a > 1b > 2 | 5.97 > 0.0 > 0.0 je 100 m | True |
-| WARNUNG | lage_1a: Länge 0.6–1.2 km | 0.046 km → lage_1a.min_density (4.2) senken oder lage_1a.min_brand_share (0.4) senken | False |
-| WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.0 km → lage_1b.min_density (3.76) senken | False |
-| WARNUNG | lage_2: Länge 2.0–4.0 km | 0.0 km → lage_2.min_density (2.0) senken | False |
+| FEHLER | Dichte 1a > 1b > 2 | 7.86 > 0.0 > 3.43 je 100 m | True |
+| OK | lage_1a: Länge 0.6–1.2 km | 0.633 km | False |
+| WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.0 km → lage_1b.min_density (1.43) senken | False |
+| WARNUNG | lage_2: Länge 2.0–4.0 km | 1.663 km → lage_2.min_density (1.91) senken | False |
 
 ## Hinweise zur Methode
 

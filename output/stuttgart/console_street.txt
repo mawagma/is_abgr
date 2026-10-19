@@ -1,0 +1,14 @@
+
+Stuttgart, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 229ea05478)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                                                                                                                                                                                                                                                                     street_names
+lage_1a      0.999     2.07         79             11.51        0.608                                                                                                                                                                                                                                                                                                                                              Alte Poststraße; Büchsenstraße; Gymnasiumstraße; Königstraße; Neue Brücke; Schulstraße; Stiftstraße
+lage_1b      0.599     1.22         35              6.71        0.200                                                                                                                                                                                                                                                                                                                                                                 Hirschstraße; Kirchstraße; Königstraße; Marktplatz; Neue Brücke; Tübinger Straße
+ lage_2      4.217     6.62        304              8.13        0.171 Alte Poststraße; Bärenstraße; Calwer Passage; Calwer Platz; Calwer Straße; Dornstraße; Eberhardstraße; Geißstraße; Gymnasiumstraße; Hirschstraße; Kienestraße; Kleine Königstraße; Kronprinzstraße; Krumme Straße; Königstraße; Lange Straße; Marienstraße; Nadlerstraße; Rathauspassage; Rotebühlplatz; Schulstraße; Sophienstraße; Sporerstraße; Steinstraße; Therese-Huber-Gasse; Töpferplatz; Töpferstraße; Tübinger Straße; Unter der Mauer
+Schwellen: {'lage_1a': {'min_density': 7.24, 'min_brand_share': 0.287}, 'lage_1b': {'min_density': 3.1, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 4.14}}
+  [OK     ] Genau 3 Lagen, gültig, nicht leer: leer: []
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [FEHLER ] Dichte 1a > 1b > 2: 11.51 > 6.71 > 8.13 je 100 m
+  [OK     ] lage_1a: Länge 0.6–1.2 km: 0.999 km
+  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.599 km → lage_1b.min_density (3.1) senken
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 4.217 km → lage_2.min_density (4.14) erhöhen
+  [OK     ] Plausibilität: 1a enthält „Königstraße“: 501 m in 1a
