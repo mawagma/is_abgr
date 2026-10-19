@@ -211,7 +211,7 @@ def write_street_map(path, res):
 
 def write_compare_report(path, res, grid_zones, cfg, checks, meta):
     st = cfg["street"]
-    s = polygon_stats(res["zones"], res["segments"], res["pois"], "lage")
+    s = res["zones"].set_index("lage")  # Street: Segmentlänge und den Segmenten zugeordnete POIs
     g = polygon_stats(grid_zones, res["segments"], res["pois"], "zone_id")
     rows = []
     for l in ("lage_1a", "lage_1b", "lage_2"):
@@ -230,8 +230,9 @@ def write_compare_report(path, res, grid_zones, cfg, checks, meta):
         f"Overrides: {', '.join(meta['overrides']) or 'keine'}. Rastermodus: `{cfg['classification']}`, "
         f"Res. {cfg['h3_resolution']}, max_area_ha {cfg.get('max_area_ha')}.", "",
         "## Vergleich je Lage", "",
-        "Gleiche Zählweise für beide Modi: Straßenlänge = Länge der Straßensegmente im Polygon, POIs = "
-        "Erdgeschoss-POIs im Polygon, Filialanteil = Anteil Filialisten (brand/brand:wikidata) an diesen POIs.", "",
+        "Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon. Street: Länge der Lage-Segmente, "
+        "POIs = den Segmenten zugeordnete POIs (das Straßenraum-Polygon enthält keine Gebäude und damit kaum POIs). "
+        "Filialanteil = Anteil Filialisten (brand/brand:wikidata).", "",
         _md_table(pd.DataFrame(rows)), "",
         "## Street-Modus: Lagen (Kennwerte über die zugeordneten Segmente)", "",
         _md_table(z.drop(columns="street_names")), "",

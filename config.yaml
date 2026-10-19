@@ -220,6 +220,7 @@ street:
     "Heilbronn, Germany": reference/heilbronn_lagen.geojson
   reference_match_m: 5          # Segment gehört zur Referenz, wenn sein Mittelpunkt ≤ 5 m von ihr entfernt liegt
   reference_tolerance: 0.25
+  lagen_from_reference: false   # true: 1a/1b = Referenz, 2-Lage = Segmente ≥ lage_2-Schwelle, die daran anschließen
   # Auswertungspolygon = Straßenraum: Puffer (buffer_m) um die Achsen minus Gebäude und Malls
   street_space_only: true
   building_query_radius_m: 1000
@@ -227,5 +228,5 @@ street:
   highway: [pedestrian, living_street, residential, unclassified, tertiary, secondary, primary]
   highway_named_only: [footway, path]      # nur mit name-Tag
   touch_tolerance_m: 0.5                   # Zusammenhang: Segmente berühren sich (Endpunkt oder Kreuzung)
-  plausibility:
-    "Heilbronn, Germany": ["Fleiner Straße", "Sülmerstraße", "Kaiserstraße"]
+  plausibility:                 # Kaiser- und Sülmerstraße sind laut Expertenabgrenzung (19.10.2026) 1b
+    "Heilbronn, Germany": ["Fleiner Straße"]

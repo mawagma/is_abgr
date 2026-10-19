@@ -1,5 +1,7 @@
 """Einmalig: Heilbronn-Referenzlagen (Expertenabgrenzung) als GeoJSON-Linien erzeugen.
-1a = 1a-Segmente der freigegebenen Karte (seed strongest_chain, Lauf vom 18.10.2026).
+1a = 1a-Segmente der freigegebenen Karte (seed strongest_chain, ohne Mall-Ausschluss; Commit 2a49014,
+     Datei output/heilbronn/zones_heilbronn_street_strongest_chain.gpkg).
+Aufruf: python tools/make_reference_heilbronn.py <segments.gpkg> <overpass_raw.pkl>
 1b = Kaiserstraße von der Allee bis zum Käthchenhof + Sülmerstraße vom Kiliansplatz bis zur Höhe Hafenmarkt/Lohtorstraße.
 Die Datei kann in QGIS nachbearbeitet werden (Attribut lage = lage_1a | lage_1b)."""
 import sys
@@ -7,8 +9,8 @@ import sys
 import geopandas as gpd
 import pandas as pd
 
-seg = gpd.read_file("output/heilbronn/zones_heilbronn_street_strongest_chain.gpkg", layer="segments")
-raw = pd.read_pickle(sys.argv[1])  # Overpass-POI-Abruf (enthält Käthchenhof, Hafenmarkt, Lohtorstraße)
+seg = gpd.read_file(sys.argv[1], layer="segments")
+raw = pd.read_pickle(sys.argv[2])  # Overpass-POI-Abruf (enthält Käthchenhof, Hafenmarkt, Lohtorstraße)
 c = seg.centroid
 a1 = seg[seg["lage"] == "lage_1a"]
 kaethchen_x = raw[raw["name"] == "Käthchenhof"].geometry.total_bounds[0]  # Westkante

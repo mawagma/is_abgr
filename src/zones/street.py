@@ -304,6 +304,14 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
     ref = reference_labels(seg, cfg)
     th, log = calibrate(seg, adj, cfg, ref) if auto else (copy.deepcopy(st["thresholds"]), [])
     lage, neben = classify_segments(seg, adj, th, st["max_gap_segments"], st["seed"])
+    if ref is not None and st.get("lagen_from_reference"):
+        # Expertenabgrenzung übernehmen: 1a/1b aus der Referenz, 2-Lage regelbasiert daran angeschlossen
+        fixed = set(np.flatnonzero(ref != ""))
+        ok = seg["density"].to_numpy() >= th["lage_2"]["min_density"]
+        ok[list(fixed)] = True
+        lage = np.full(len(seg), "", dtype=object)
+        lage[list(_chain(fixed, ok, adj, st["max_gap_segments"]))] = "lage_2"
+        lage[ref != ""] = ref[ref != ""]
     seg["lage"] = lage
     targets = {l: list(v) for l, v in st["target_ranges_km"].items()}
     if ref is not None:  # km-Ziele aus der Referenz ableiten

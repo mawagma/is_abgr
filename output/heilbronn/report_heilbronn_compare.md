@@ -1,31 +1,31 @@
 # Lagevergleich Heilbronn, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-18T21:26:21Z, Lauf 2026-10-18T21:43:36+00:00, params_hash `94f0bedfd2`.  
-Street-Modus: auto_calibrate = **False**, seed = **max_density**. Overrides: keine. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T06:41:06Z, Lauf 2026-10-19T07:08:43+00:00, params_hash `50aebe15af`.  
+Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: keine. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
 
-Gleiche Zählweise für beide Modi: Straßenlänge = Länge der Straßensegmente im Polygon, POIs = Erdgeschoss-POIs im Polygon, Filialanteil = Anteil Filialisten (brand/brand:wikidata) an diesen POIs.
+Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon. Street: Länge der Lage-Segmente, POIs = den Segmenten zugeordnete POIs (das Straßenraum-Polygon enthält keine Gebäude und damit kaum POIs). Filialanteil = Anteil Filialisten (brand/brand:wikidata).
 
-| Lage | Ziel km | Raster km | Street km | Ziel ha | Raster ha | Street ha | Raster POIs | Street POIs | Raster Filialanteil | Street Filialanteil |
-|---|---|---|---|---|---|---|---|---|---|---|
-| lage_1a | 0.6–1.2 | 1.38 | 0.08 | 3–6 | 5.94 | 0.24 | 126 | 2 | 0.429 | 1.0 |
-| lage_1b | 1.0–2.0 | 2.55 | 0.0 | 5–10 | 9.94 | 0.0 | 138 | 0 | 0.188 | 0.0 |
-| lage_2 | 2.0–4.0 | 5.95 | 7.33 | 10–20 | 19.98 | 20.94 | 116 | 268 | 0.112 | 0.224 |
+| Lage | Ziel km | Raster km | Street km | Raster ha | Street ha | Raster POIs | Street POIs | Raster Filialanteil | Street Filialanteil |
+|---|---|---|---|---|---|---|---|---|---|
+| lage_1a | 0.39–0.65 | 1.07 | 0.301 | 3.69 | 0.56 | 74 | 26 | 0.351 | 0.577 |
+| lage_1b | 0.44–0.73 | 2.6 | 1.987 | 9.93 | 3.41 | 142 | 127 | 0.19 | 0.189 |
+| lage_2 | 2.0–4.0 | 6.08 | 3.964 | 20.73 | 7.48 | 102 | 109 | 0.137 | 0.174 |
 
 ## Street-Modus: Lagen (Kennwerte über die zugeordneten Segmente)
 
 | lage | length_km | area_ha | poi_count | density_per_100m | brand_share |
 |---|---|---|---|---|---|
-| lage_1a | 0.06 | 0.24 | 7 | 19.24 | 0.857 |
-| lage_1b | 0.0 | 0.0 | 0 | 0.0 | 0.0 |
-| lage_2 | 6.57 | 20.94 | 287 | 5.17 | 0.244 |
+| lage_1a | 0.301 | 0.56 | 26 | 12.36 | 0.577 |
+| lage_1b | 1.987 | 3.41 | 127 | 7.3 | 0.189 |
+| lage_2 | 3.964 | 7.48 | 109 | 3.11 | 0.174 |
 
 ## Straßennamen je Lage
 
-- **lage_1a**: Metzgergasse
-- **lage_1b**: –
-- **lage_2**: Allee; Allerheiligenstraße; Am Kieselmarkt; Am Wollhaus; Berliner Platz; Biedermanngasse; Deutschhofstraße; Eichgasse; Falkenstraße; Fischergasse; Fleiner Straße; Gemmingergasse; Gerberstraße; Große Bahngasse; Gustav-Binder-Straße; Götzenturmstraße; Hämmerlinggasse; Jakobgasse; Kaiserstraße; Karlstraße; Kasernengasse; Kiliansplatz; Kilianstraße; Kirchbrunnenstraße; Klarastraße; Kramstraße; Lammgasse; Lohtorstraße; Marktplatz; Obere Neckarstraße; Rathausgasse; Schellengasse; Schwibbogengasse; Schöntaler Gasse; Siebeneichgasse; Sonnengasse; Sülmerstraße; Titotstraße; Turmstraße; Untere Neckarstraße; Windgasse
+- **lage_1a**: Deutschhofstraße; Fleiner Straße; Kiliansplatz
+- **lage_1b**: Am Kieselmarkt; Berliner Platz; Deutschhofstraße; Eichgasse; Falkenstraße; Fleiner Straße; Gustav-Binder-Straße; Hämmerlinggasse; Kaiserstraße; Karlstraße; Kasernengasse; Kilianstraße; Kirchbrunnenstraße; Lohtorstraße; Sonnengasse; Sülmerstraße; Turmstraße
+- **lage_2**: Allee; Am Wollhaus; Biedermanngasse; Fischergasse; Gemmingergasse; Gerberstraße; Große Bahngasse; Götzenturmstraße; Jakobgasse; Kaiserstraße; Karlstraße; Kilianstraße; Klarastraße; Kramstraße; Lammgasse; Lohtorstraße; Marktplatz; Obere Neckarstraße; Rathausgasse; Schellengasse; Schwibbogengasse; Schöntaler Gasse; Siebeneichgasse; Titotstraße; Untere Neckarstraße; Windgasse
 
 ## Schwellen (gewichtete Betriebe je 100 m Straßenfront)
 
@@ -35,33 +35,38 @@ Gleiche Zählweise für beide Modi: Straßenlänge = Länge der Straßensegmente
 | lage_1b | 5 | – |
 | lage_2 | 2 | – |
 
+## Übereinstimmung mit der Referenz (Expertenabgrenzung, Segmentlänge)
+
+Referenz: `reference/heilbronn_lagen.geojson`; km-Ziele für 1a/1b = Referenzlänge ± 25%.
+
+| lage | precision | recall | f1 |
+|---|---|---|---|
+| lage_1a | 1.0 | 0.582 | 0.736 |
+| lage_1b | 0.13 | 0.44 | 0.2 |
+
 ## Nebenlagen (erfüllen die 1a-Schwelle, ohne Verbindung zur 1a)
 
-| nebenlage_id | length_km | poi_count | brand_share | lage_im_ergebnis | street_names |
-|---|---|---|---|---|---|
-| 1 | 0.516 | 41 | 0.634 | lage_2 | Am Wollhaus; Deutschhofstraße; Fleiner Straße; Kiliansplatz |
-| 2 | 0.002 | 5 | 0.6 | keine | Deutschhofstraße |
+keine
 
 ## Prüfungen
 
 | status | check | detail | hart |
 |---|---|---|---|
-| FEHLER | Genau 3 Lagen, gültig, nicht leer | leer: ['lage_1b'] | True |
+| OK | Genau 3 Lagen, gültig, nicht leer | leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| FEHLER | Dichte 1a > 1b > 2 | 19.24 > 0.0 > 5.17 je 100 m | True |
-| WARNUNG | lage_1a: Länge 0.6–1.2 km | 0.06 km → lage_1a.min_density (8) senken oder lage_1a.min_brand_share (0.4) senken | False |
-| WARNUNG | lage_1a: Fläche 3–6 ha | 0.24 ha → folgt der Länge (siehe oben) | False |
-| WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.0 km → lage_1b.min_density (5) senken | False |
-| WARNUNG | lage_1b: Fläche 5–10 ha | 0.0 ha → folgt der Länge (siehe oben) | False |
-| WARNUNG | lage_2: Länge 2.0–4.0 km | 6.57 km → lage_2.min_density (2) erhöhen | False |
-| WARNUNG | lage_2: Fläche 10–20 ha | 20.94 ha → folgt der Länge (siehe oben) | False |
-| WARNUNG | Plausibilität: 1a enthält „Fleiner Straße“ | 0 m in 1a | False |
-| WARNUNG | Plausibilität: 1a enthält „Sülmerstraße“ | 0 m in 1a | False |
-| WARNUNG | Plausibilität: 1a enthält „Kaiserstraße“ | 0 m in 1a | False |
+| OK | Dichte 1a > 1b > 2 | 12.36 > 7.3 > 3.11 je 100 m | True |
+| WARNUNG | lage_1a: Länge 0.39–0.65 km | 0.301 km → lage_1a.min_density (8) senken oder lage_1a.min_brand_share (0.4) senken | False |
+| WARNUNG | lage_1b: Länge 0.44–0.73 km | 1.987 km → lage_1b.min_density (5) erhöhen | False |
+| OK | lage_2: Länge 2.0–4.0 km | 3.964 km | False |
+| WARNUNG | lage_1a: Übereinstimmung mit Referenz (F1 ≥ 0.8) | F1 0.736, Precision 1.0, Recall 0.582 | False |
+| WARNUNG | lage_1b: Übereinstimmung mit Referenz (F1 ≥ 0.8) | F1 0.2, Precision 0.13, Recall 0.44 | False |
+| OK | Plausibilität: 1a enthält „Fleiner Straße“ | 237 m in 1a | False |
 
 ## Hinweise zur Methode
 
 - Gleichnamige verbundene Wege werden zusammengeführt und in Abschnitte von 50 m geteilt; kürzere Restketten zählen für die Dichte mit 50 m (sonst erzeugen Stummel extreme Werte).
 - Glättung über Segmente mit gemeinsamem Endpunkt; Zusammenhang der Lagen über Berührung (Endpunkte und Kreuzungen), Lücken bis max_gap_segments werden überbrückt und der Lage zugeschlagen.
+- Auswertungspolygon: Puffer 20 m um die Achsen minus OSM-Gebäude und Einkaufszentren (nur Straßenraum); Teile ohne Kontakt zur Achse entfallen. Die Rasterpolygone enthalten dagegen Gebäude – Flächen nicht direkt vergleichbar.
+- POIs in Einkaufszentren (shop=mall) zählen nicht.
 - Fußgängerflächen (Plätze als Fläche) gehen nicht als Segment ein; POIs dort werden der nächsten Straße zugeordnet.
 - Doppelt geführte Straßen (zwei Richtungsfahrbahnen) zählen mit doppelter Länge → niedrigere Dichte.

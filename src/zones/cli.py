@@ -62,6 +62,7 @@ def main(argv=None):
     ap.add_argument("--auto-calibrate", action=argparse.BooleanOptionalAction, default=None,
                     help="Street-Modus: Schwellen auf target_ranges_km kalibrieren (überschreibt config)")
     ap.add_argument("--seed", choices=["max_density", "strongest_chain"], help="Street-Modus: 1a-Startpunkt")
+    ap.add_argument("--from-reference", action="store_true", help="Street-Modus: 1a/1b aus der Referenz übernehmen")
     a = ap.parse_args(argv)
     cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8"))
     args = (("city", a.city), ("classification", a.classification), ("mode", a.mode))
@@ -71,6 +72,9 @@ def main(argv=None):
         if a.auto_calibrate != cfg["street"]["auto_calibrate"]:
             overrides.append(f"street.auto_calibrate={a.auto_calibrate}")
         cfg["street"] = {**cfg["street"], "auto_calibrate": a.auto_calibrate}
+    if a.from_reference:
+        overrides.append("street.lagen_from_reference=True")
+        cfg["street"] = {**cfg["street"], "lagen_from_reference": True}
     if a.seed and a.seed != cfg["street"]["seed"]:
         overrides.append(f"street.seed={a.seed!r}")
         cfg["street"] = {**cfg["street"], "seed": a.seed}
@@ -134,7 +138,8 @@ def main_street(cfg, aoi, center, raw, pois, overrides):
             "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     s = slug(cfg["city"])
     seed = cfg["street"]["seed"]
-    stem = f"{s}_street" + ("_calibrated" if res["auto_calibrate"] else "") + ("" if seed == "max_density" else f"_{seed}")
+    stem = (f"{s}_street" + ("_reference" if cfg["street"].get("lagen_from_reference") else "")
+            + ("_calibrated" if res["auto_calibrate"] else "") + ("" if seed == "strongest_chain" else f"_{seed}"))
     write_street(Path(cfg["output_dir"]) / s, stem, s, res, grid_zones, cfg, checks, meta)
     print(f"\n{cfg['city']} – street, auto_calibrate={res['auto_calibrate']}, seed={seed} (params_hash {params_hash})")
     print(pd.DataFrame(res["zones"].drop(columns="geometry")).to_string(index=False))

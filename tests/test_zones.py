@@ -144,3 +144,16 @@ def test_mall_tenants_excluded():
                             "name": ["Center", "In Mall", "Straße"]},
                            geometry=[mall, Point(50, 50), Point(150, 50)], crs=CFG["crs_metric"])
     assert list(categorize(raw, CFG)["name"]) == ["Straße"]
+
+
+def test_lagen_from_reference(tmp_path):
+    streets, pois = synthetic_street()
+    x0, y0 = CENTER
+    ref = gpd.GeoDataFrame({"lage": ["lage_1a", "lage_1b"]},
+                           geometry=[LineString([(x0, y0), (x0 + 100, y0)]), LineString([(x0 + 100, y0), (x0 + 200, y0)])],
+                           crs=CFG["crs_metric"])
+    ref.to_file(tmp_path / "ref.geojson", driver="GeoJSON")
+    cfg = {**CFG, "city": "Teststadt", "street": {**CFG["street"], "lagen_from_reference": True,
+                                                 "reference": {"Teststadt": str(tmp_path / "ref.geojson")}}}
+    km = run_street(streets, pois, cfg, auto_calibrate=False)["zones"].set_index("lage")["length_km"]
+    assert km["lage_1a"] == 0.1 and km["lage_1b"] == 0.1 and km["lage_2"] > 0

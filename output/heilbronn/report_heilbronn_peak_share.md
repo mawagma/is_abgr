@@ -1,17 +1,17 @@
 # Vergleichszonen Heilbronn, Germany – Methode `peak_share`
 
 Datenquelle: © OpenStreetMap-Mitwirkende (ODbL), abgerufen über Overpass (https://overpass.kumi.systems/api).  
-OSM-Datenstand (Overpass `timestamp_osm_base`): 2026-07-24T11:04:51Z  
-Abrufzeitpunkt (Cache): 2026-10-18T20:37:06+00:00  
-Lauf: 2026-10-18T21:10:42+00:00 · params_hash `f5b48c1424`
+OSM-Datenstand (Overpass `timestamp_osm_base`): 2026-10-19T06:41:06Z  
+Abrufzeitpunkt (Cache): 2026-10-19T07:12:03+00:00  
+Lauf: 2026-10-19T07:13:20+00:00 · params_hash `1bf7cc4932`
 
 ## Zonen
 
 | zone_id | rank | area_ha | poi_count | poi_density_ha | weighted_density_ha | retail_count | chain_share | ped_street_m | share_retail | share_gastro | share_service | share_culture_leisure | share_health | perimeter_m | compactness |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Z1 | 1 | 5.94 | 126 | 21.22 | 28.04 | 101 | 0.475 | 1186.0 | 0.802 | 0.198 | 0.0 | 0 | 0 | 1666.3 | 0.269 |
-| Z2 | 2 | 9.94 | 138 | 13.89 | 15.85 | 83 | 0.229 | 1735.0 | 0.601 | 0.384 | 0.014 | 0 | 0 | 4544.1 | 0.06 |
-| Z3 | 3 | 19.98 | 116 | 5.81 | 6.29 | 61 | 0.082 | 1387.0 | 0.526 | 0.405 | 0.069 | 0 | 0 | 7855.5 | 0.041 |
+| Z1 | 1 | 3.69 | 74 | 20.08 | 25.37 | 61 | 0.377 | 927.0 | 0.824 | 0.176 | 0.0 | 0 | 0 | 1186.7 | 0.329 |
+| Z2 | 2 | 9.93 | 142 | 14.29 | 16.33 | 86 | 0.233 | 1768.0 | 0.606 | 0.38 | 0.014 | 0 | 0 | 3378.1 | 0.109 |
+| Z3 | 3 | 20.73 | 102 | 4.92 | 5.43 | 52 | 0.096 | 1400.0 | 0.51 | 0.402 | 0.088 | 0 | 0 | 6384.4 | 0.064 |
 
 ## Vergleichbarkeit zwischen Städten
 
@@ -25,16 +25,16 @@ Lauf: 2026-10-18T21:10:42+00:00 · params_hash `f5b48c1424`
 |---|---|---|---|
 | OK | Genau 3 Zonen, gültig, nicht leer | 3 Zonen; leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| OK | Z1: Fläche ≥ 2000 m² | 59382 m² | True |
-| OK | POI-Dichte Z1 > Z2 > Z3 | 21.22 > 13.89 > 5.81 POI/ha | True |
+| OK | Z1: Fläche ≥ 2000 m² | 36860 m² | True |
+| OK | POI-Dichte Z1 > Z2 > Z3 | 20.08 > 14.29 > 4.92 POI/ha | True |
 | OK | Z1: ein Polygon | Polygon, 1 Teil(e) | False |
-| WARNUNG | Z2: ein Polygon | MultiPolygon, 6 Teil(e) | False |
+| WARNUNG | Z2: ein Polygon | MultiPolygon, 4 Teil(e) | False |
 | OK | Z3: ein Polygon | Polygon, 1 Teil(e) | False |
-| OK | Z1: Polsby-Popper ≥ 0.2 | 0.269 | False |
-| WARNUNG | Z2: Polsby-Popper ≥ 0.2 | 0.060 | False |
-| WARNUNG | Z3: Polsby-Popper ≥ 0.2 | 0.041 | False |
-| WARNUNG | Sensitivität h3_resolution=12: IoU(Z1) ≥ 0.7 | IoU = 0.652 | False |
-| WARNUNG | Sensitivität smoothing={'radius_m': 150, 'sigma_m': 60}: IoU(Z1) ≥ 0.7 | IoU = 0.489 | False |
+| OK | Z1: Polsby-Popper ≥ 0.2 | 0.329 | False |
+| WARNUNG | Z2: Polsby-Popper ≥ 0.2 | 0.109 | False |
+| WARNUNG | Z3: Polsby-Popper ≥ 0.2 | 0.064 | False |
+| WARNUNG | Sensitivität h3_resolution=12: IoU(Z1) ≥ 0.7 | IoU = 0.584 | False |
+| WARNUNG | Sensitivität smoothing={'radius_m': 150, 'sigma_m': 60}: IoU(Z1) ≥ 0.7 | IoU = 0.345 | False |
 | OK | Plausibilität: Z1 schneidet „Fleiner Straße“ | 3 OSM-Objekt(e) mit diesem Namen | False |
 | WARNUNG | Plausibilität: Z1 schneidet „Sülmerstraße“ | 7 OSM-Objekt(e) mit diesem Namen | False |
 | OK | Plausibilität: Z1 schneidet „Kaiserstraße“ | 13 OSM-Objekt(e) mit diesem Namen | False |
@@ -43,9 +43,9 @@ Lauf: 2026-10-18T21:10:42+00:00 · params_hash `f5b48c1424`
 ## Suchraum und Daten
 
 - Zentrum: place=city (49.14229, 9.21866), Radius 2000 m, Suchraum 1254.6 ha (mit Verwaltungsgrenze verschnitten)
-- POIs nach Bereinigung: 911 (retail: 584, gastro: 305, service: 22)
+- POIs nach Bereinigung: 860 (retail: 545, gastro: 293, service: 22)
 - H3-Zellen: 6250 (Auflösung 11, Ø 0.20 ha), davon Dichte > 0: 1991
-- Inseln (klassifiziert, nicht mit Z1 verbunden): 179 Zellen, 35.9 ha – Klassen {2: 8, 3: 171}
+- Inseln (klassifiziert, nicht mit Z1 verbunden): 211 Zellen, 42.3 ha – Klassen {2: 10, 3: 201}
 
 ## Parameter
 
@@ -214,6 +214,9 @@ crs_export: EPSG:4326
 cache_dir: cache
 output_dir: output
 overpass_url: https://overpass.kumi.systems/api
+overpass_fallback_urls:
+- https://overpass.private.coffee/api
+- https://maps.mail.ru/osm/tools/overpass/api
 requests_timeout_s: 300
 overpass_retries: 20
 overpass_retry_wait_s: 30
@@ -315,6 +318,7 @@ categories:
 exclude_prefixes:
 - 'disused:'
 - 'abandoned:'
+exclude_malls: true
 context:
   pedestrian:
     highway:
@@ -380,6 +384,7 @@ street:
     lage_2:
       min_density: 2
   max_gap_segments: 1
+  seed: strongest_chain
   min_hole_ha: 0.2
   target_ranges_km:
     lage_1a:
@@ -391,17 +396,14 @@ street:
     lage_2:
     - 2.0
     - 4.0
-  target_ranges_ha:
-    lage_1a:
-    - 3
-    - 6
-    lage_1b:
-    - 5
-    - 10
-    lage_2:
-    - 10
-    - 20
   auto_calibrate: false
+  reference:
+    Heilbronn, Germany: reference/heilbronn_lagen.geojson
+  reference_match_m: 5
+  reference_tolerance: 0.25
+  lagen_from_reference: false
+  street_space_only: true
+  building_query_radius_m: 1000
   calibration_iterations: 40
   highway:
   - pedestrian
@@ -418,6 +420,4 @@ street:
   plausibility:
     Heilbronn, Germany:
     - Fleiner Straße
-    - Sülmerstraße
-    - Kaiserstraße
 ```
