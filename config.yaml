@@ -215,12 +215,13 @@ street:
   # absolute = calibrated_thresholds bzw. thresholds (Betriebe je 100 m, Filialanteil) wie bisher.
   threshold_mode: relative
   relative_reference_m: 300
-  # Faktoren per Gittersuche auf die Heilbronn-Referenz kalibriert (19.10.2026): F1 1a 0,95, F1 1b 0,62.
-  # 1b = 2-Lagen-Besatz auf einer Hauptlaufachse; 2-Lage-Faktor so, dass Heilbronn ≈ 4 km 2-Lage hat.
+  # Faktoren per Gittersuche auf die Heilbronn-Referenz kalibriert (19.10.2026): F1 1a 0,95, F1 1b 0,65.
+  # 1b = Besatz auf einer Hauptlaufachse im fußläufigen Zentrum; 2-Lage-Faktor so, dass Heilbronn ≈ 4 km 2-Lage hat.
   relative_thresholds:
     lage_1a: {density: 0.35, brand_share: 0.8}
-    lage_1b: {density: 0.2, centrality_pct: 0.9}   # oberste 10 % Zentralität der Stadt
+    lage_1b: {density: 0.15, centrality_pct: 0.9}  # oberste 10 % lokale Zentralität (Umkreis 1a)
     lage_2:  {density: 0.2}
+  centrality_radius_m: 600      # lokale Zentralität: fußläufiges Umfeld der 1a (≈ 7–8 Gehminuten)
   centrality_samples: 600       # Stichprobe Betweenness (Reproduzierbarkeit über centrality_seed)
   centrality_seed: 1
   calibrated_thresholds:

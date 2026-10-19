@@ -172,17 +172,22 @@ def classify_segments(seg, adj, th, gap, seed="max_density"):
     return lage, neben
 
 
-def centrality_pct(seg, adj, cfg):
-    """Netzzentralität (Betweenness über das Segmentnetz, Gewicht = Länge) als Perzentil innerhalb der Stadt.
-    Misst Laufachsen: über welche Abschnitte viele kürzeste Wege führen. Stichprobe für große Netze."""
+def centrality_pct(seg, adj, cfg, core=None):
+    """Lokale Netzzentralität (Betweenness über das Segmentnetz, Gewicht = Länge) als Perzentil.
+    Nur Segmente im Umkreis centrality_radius_m um core (die 1a) – fußläufiges Zentrum statt Durchgangsstraßen
+    der ganzen Stadt. Außerhalb = 0. Misst Laufachsen: über welche Abschnitte viele kürzeste Wege führen."""
     import networkx as nx
     st, L = cfg["street"], seg["length_m"].to_numpy()
+    inside = np.ones(len(seg), bool) if core is None else (
+        seg.distance(shapely.union_all(seg.geometry.to_numpy()[list(core)])) <= st["centrality_radius_m"]).to_numpy()
+    idx = np.flatnonzero(inside)
     G = nx.Graph()
-    G.add_nodes_from(range(len(seg)))
-    G.add_edges_from((i, j, {"w": (L[i] + L[j]) / 2}) for i, nb in enumerate(adj) for j in nb if i < j)
-    k = min(st["centrality_samples"], len(seg))
-    bc = nx.betweenness_centrality(G, weight="w", k=k, seed=st["centrality_seed"])
-    return pd.Series([bc[i] for i in range(len(seg))]).rank(pct=True).to_numpy()
+    G.add_nodes_from(idx)
+    G.add_edges_from((i, j, {"w": (L[i] + L[j]) / 2}) for i in idx for j in adj[i] if i < j and inside[j])
+    bc = nx.betweenness_centrality(G, weight="w", k=min(st["centrality_samples"], len(idx)), seed=st["centrality_seed"])
+    out = np.zeros(len(seg))
+    out[idx] = pd.Series([bc[i] for i in idx]).rank(pct=True).to_numpy()
+    return out
 
 
 def relative_thresholds(seg, cfg):
@@ -331,13 +336,16 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
     seg, nb, adj = build_segments(streets, cfg)
     pois = assign_pois(pois, seg, cfg)
     seg = segment_metrics(seg, pois, nb, cfg)
-    seg["central_pct"] = centrality_pct(seg, adj, cfg)
     auto = st["auto_calibrate"] if auto_calibrate is None else auto_calibrate
     ref = reference_labels(seg, cfg)
     base = st["calibrated_thresholds"] if st.get("use_calibrated_thresholds") else st["thresholds"]
     rel = None
     if st.get("threshold_mode") == "relative":
         base, rel = relative_thresholds(seg, cfg)
+    # Zentralität hängt von der 1a ab (Umkreis); die 1a selbst nutzt sie nicht → erst 1a bestimmen
+    seg["central_pct"] = 0.0
+    pre = classify_segments(seg, adj, base, st["max_gap_segments"], st["seed"])[0]
+    seg["central_pct"] = centrality_pct(seg, adj, cfg, np.flatnonzero(pre == "lage_1a") if (pre == "lage_1a").any() else None)
     th, log = calibrate(seg, adj, cfg, ref) if auto else (copy.deepcopy(base), [])
     lage, neben = classify_segments(seg, adj, th, st["max_gap_segments"], st["seed"])
     if ref is not None and st.get("lagen_from_reference"):
