@@ -7,7 +7,8 @@ lage_1b      0.589     1.21         43              7.68        0.070           
 Schwellen: {'lage_1a': {'min_density': 6.56, 'min_brand_share': 0.2, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 2.81, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 3.75}}
   [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: []
   [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
-  [OK     ] Dichte 1a > 1b > 2: 11.25 > 7.68 > 6.07 je 100 m
+  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 11.25 / 1b 7.68 / 2 6.07 je 100 m
+  [OK     ] Dichte 1b > 2: 1a 11.25 / 1b 7.68 / 2 6.07 je 100 m
   [WARNUNG] lage_1a: Länge 0.6–1.2 km: 1.381 km → lage_1a.min_density (6.56) erhöhen
   [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.589 km → lage_1b.min_density (2.81) senken
   [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.643 km → lage_2.min_density (3.75) senken

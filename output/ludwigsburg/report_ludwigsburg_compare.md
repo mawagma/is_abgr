@@ -1,6 +1,6 @@
 # Lagevergleich Ludwigsburg, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T14:44:21Z, Lauf 2026-10-19T14:58:28+00:00, params_hash `8669e4a2d7`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T17:19:10+00:00, params_hash `8669e4a2d7`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Ludwigsburg, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -47,7 +47,8 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 |---|---|---|---|
 | OK | Genau 3 Lagen, gültig, nicht leer (1b darf leer sein) | leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| OK | Dichte 1a > 1b > 2 | 11.25 > 7.68 > 6.07 je 100 m | True |
+| OK | Dichte 1a > 1b und 1a > 2 | 1a 11.25 / 1b 7.68 / 2 6.07 je 100 m | True |
+| OK | Dichte 1b > 2 | 1a 11.25 / 1b 7.68 / 2 6.07 je 100 m | False |
 | WARNUNG | lage_1a: Länge 0.6–1.2 km | 1.381 km → lage_1a.min_density (6.56) erhöhen | False |
 | WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.589 km → lage_1b.min_density (2.81) senken | False |
 | WARNUNG | lage_2: Länge 2.0–4.0 km | 1.643 km → lage_2.min_density (3.75) senken | False |

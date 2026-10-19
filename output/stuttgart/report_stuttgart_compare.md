@@ -1,6 +1,6 @@
 # Lagevergleich Stuttgart, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T09:38:01Z, Lauf 2026-10-19T12:09:21+00:00, params_hash `d4ad3ee6ea`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T15:32:06Z, Lauf 2026-10-19T15:58:22+00:00, params_hash `d4ad3ee6ea`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Stuttgart, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -51,7 +51,8 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 |---|---|---|---|
 | OK | Genau 3 Lagen, gültig, nicht leer (1b darf leer sein) | leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| FEHLER | Dichte 1a > 1b > 2 | 11.6 > 4.97 > 8.26 je 100 m | True |
+| OK | Dichte 1a > 1b und 1a > 2 | 1a 11.6 / 1b 4.97 / 2 8.26 je 100 m | True |
+| WARNUNG | Dichte 1b > 2 | 1a 11.6 / 1b 4.97 / 2 8.26 je 100 m | False |
 | WARNUNG | lage_1a: Länge 0.6–1.2 km | 1.27 km → lage_1a.min_density (7.24) erhöhen | False |
 | WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.397 km → lage_1b.min_density (3.1) senken | False |
 | WARNUNG | lage_2: Länge 2.0–4.0 km | 5.453 km → lage_2.min_density (4.14) erhöhen | False |

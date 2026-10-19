@@ -1,6 +1,6 @@
 # Lagevergleich Tauberbischofsheim, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T14:19:51Z, Lauf 2026-10-19T14:35:41+00:00, params_hash `6aaeb260b3`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T15:32:06Z, Lauf 2026-10-19T16:22:37+00:00, params_hash `6aaeb260b3`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Tauberbischofsheim, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -47,7 +47,8 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 |---|---|---|---|
 | OK | Genau 3 Lagen, gültig, nicht leer (1b darf leer sein) | leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| OK | Dichte 1a > 1b > 2 | 6.08 > 5.11 > 2.49 je 100 m | True |
+| OK | Dichte 1a > 1b und 1a > 2 | 1a 6.08 / 1b 5.11 / 2 2.49 je 100 m | True |
+| OK | Dichte 1b > 2 | 1a 6.08 / 1b 5.11 / 2 2.49 je 100 m | False |
 | WARNUNG | lage_1a: Länge 0.6–1.2 km | 0.555 km → lage_1a.min_density (3.28) senken oder lage_1a.min_brand_share (0.1) senken | False |
 | WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.386 km → lage_1b.min_density (1.41) senken | False |
 | WARNUNG | lage_2: Länge 2.0–4.0 km | 0.322 km → lage_2.min_density (1.87) senken | False |

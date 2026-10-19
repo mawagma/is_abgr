@@ -1,6 +1,6 @@
 # Lagevergleich Waiblingen, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T14:44:21Z, Lauf 2026-10-19T14:49:56+00:00, params_hash `0b1bdcccf0`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T16:57:33+00:00, params_hash `0b1bdcccf0`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Waiblingen, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -51,7 +51,8 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 |---|---|---|---|
 | OK | Genau 3 Lagen, gültig, nicht leer (1b darf leer sein) | leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| FEHLER | Dichte 1a > 1b > 2 | 7.6 > 4.2 > 5.66 je 100 m | True |
+| OK | Dichte 1a > 1b und 1a > 2 | 1a 7.6 / 1b 4.2 / 2 5.66 je 100 m | True |
+| WARNUNG | Dichte 1b > 2 | 1a 7.6 / 1b 4.2 / 2 5.66 je 100 m | False |
 | WARNUNG | lage_1a: Länge 0.6–1.2 km | 1.214 km → lage_1a.min_density (4.19) erhöhen | False |
 | OK | lage_1b: Länge 1.0–2.0 km | 1.314 km | False |
 | WARNUNG | lage_2: Länge 2.0–4.0 km | 1.188 km → lage_2.min_density (2.39) senken | False |

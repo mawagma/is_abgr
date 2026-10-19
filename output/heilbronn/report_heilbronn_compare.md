@@ -1,6 +1,6 @@
 # Lagevergleich Heilbronn, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T09:38:01Z, Lauf 2026-10-19T12:05:48+00:00, params_hash `eec30e4025`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T15:32:06Z, Lauf 2026-10-19T15:48:22+00:00, params_hash `eec30e4025`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: keine. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -56,7 +56,8 @@ Referenz: `reference/heilbronn_lagen.geojson`; km-Ziele für 1a/1b = Referenzlä
 |---|---|---|---|
 | OK | Genau 3 Lagen, gültig, nicht leer (1b darf leer sein) | leer: [] | True |
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
-| OK | Dichte 1a > 1b > 2 | 9.58 > 6.69 > 4.4 je 100 m | True |
+| OK | Dichte 1a > 1b und 1a > 2 | 1a 9.58 / 1b 6.69 / 2 4.4 je 100 m | True |
+| OK | Dichte 1b > 2 | 1a 9.58 / 1b 6.69 / 2 4.4 je 100 m | False |
 | OK | lage_1a: Länge 0.39–0.65 km | 0.566 km | False |
 | OK | lage_1b: Länge 0.44–0.73 km | 0.553 km | False |
 | WARNUNG | lage_2: Länge 2.0–4.0 km | 4.598 km → lage_2.min_density (2.48) erhöhen | False |

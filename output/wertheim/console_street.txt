@@ -1,21 +1,14 @@
-Traceback (most recent call last):
-  File "<frozen runpy>", line 203, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/user/is_abgr/src/zones/cli.py", line 153, in <module>
-    sys.exit(main())
-             ~~~~^^
-  File "/home/user/is_abgr/src/zones/cli.py", line 91, in main
-    return main_street(cfg, aoi, center, raw, pois, overrides)
-  File "/home/user/is_abgr/src/zones/cli.py", line 132, in main_street
-    res = run_street(load_streets(aoi, cfg), pois, cfg, obstacles=obstacles)
-  File "/home/user/is_abgr/src/zones/street.py", line 354, in run_street
-    seg, nb, adj = build_segments(streets, cfg)
-                   ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
-  File "/home/user/is_abgr/src/zones/street.py", line 48, in build_segments
-    rows.append({"street": name, "chain_id": chain_id, "geometry": substring(line, i * L, end)})
-                                                                   ~~~~~~~~~^^^^^^^^^^^^^^^^^^
-  File "/home/user/is_abgr/.venv/lib/python3.13/site-packages/shapely/ops.py", line 600, in substring
-    raise GeometryTypeError(
-    ...<2 lines>...
-    )
-shapely.errors.GeometryTypeError: Can only calculate a substring of LineString geometries. A Point was provided.
+
+Wertheim, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash ce88f09632)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                        street_names
+lage_1a      0.539     0.97         33              6.95        0.182                                                                                  Bahnhofstraße; Brückengasse; Eichelgasse; Maingasse; Marktplatz; Weingärtnerstraße
+lage_1b      0.320     0.59          8              2.50        0.000                                                                                                                      Eichelgasse; Rechte Tauberstraße; Tauberbrücke
+ lage_2      0.809     1.05         35              4.33        0.000 Friedleinsgasse; Haspelgäßchen; Lindenstraße; Marktplatz; Mühlenstraße; Münzgasse; Nebenmaingasse; Nebenneugasse; Rathausgasse; Tauber-Promenade; Weingärtnerstraße
+Schwellen: {'lage_1a': {'min_density': 3.02, 'min_brand_share': 0.035, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 1.3, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 1.73}}
+  [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: []
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 6.95 / 1b 2.5 / 2 4.33 je 100 m
+  [WARNUNG] Dichte 1b > 2: 1a 6.95 / 1b 2.5 / 2 4.33 je 100 m
+  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 0.539 km → lage_1a.min_density (3.02) senken oder lage_1a.min_brand_share (0.035) senken
+  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.32 km → lage_1b.min_density (1.3) senken
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 0.809 km → lage_2.min_density (1.73) senken
