@@ -1,6 +1,6 @@
 # Lagevergleich Wertheim, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T19:56:04+00:00, params_hash `dc00f5f0c7`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T16:39:21Z, Lauf 2026-10-19T20:04:57+00:00, params_hash `f174206135`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: city='Wertheim, Germany'. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -31,15 +31,13 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 
 | lage | min_density | min_brand_share | secondary_chain_share | min_centrality_pct |
 |---|---|---|---|---|
-| lage_1a | 2.99 | 0.035 | 0.2 | – |
+| lage_1a | 3.42 | 0.026 | 0.2 | – |
 | lage_1b | 1.28 | – | – | 0.9 |
 | lage_2 | 1.71 | – | – | – |
 
 ## Nebenlagen (erfüllen die 1a-Schwelle, ohne Verbindung zur 1a)
 
-| nebenlage_id | length_km | poi_count | brand_share | lage_im_ergebnis | street_names |
-|---|---|---|---|---|---|
-| 1 | 0.05 | 1 | 1.0 | keine | Bismarckstraße |
+keine
 
 ## Prüfungen
 
@@ -49,7 +47,7 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 | OK | Überlappung < 1.0 m² | max. 0.0000 m² | True |
 | OK | Dichte 1a > 1b und 1a > 2 | 1a 8.26 / 1b 2.08 / 2 4.31 je 100 m | True |
 | WARNUNG | Dichte 1b > 2 | 1a 8.26 / 1b 2.08 / 2 4.31 je 100 m | False |
-| WARNUNG | lage_1a: Länge 0.6–1.2 km | 0.439 km → lage_1a.min_density (2.99) senken oder lage_1a.min_brand_share (0.035) senken | False |
+| WARNUNG | lage_1a: Länge 0.6–1.2 km | 0.439 km → lage_1a.min_density (3.42) senken oder lage_1a.min_brand_share (0.026) senken | False |
 | WARNUNG | lage_1b: Länge 1.0–2.0 km | 0.32 km → lage_1b.min_density (1.28) senken | False |
 | WARNUNG | lage_2: Länge 2.0–4.0 km | 0.809 km → lage_2.min_density (1.71) senken | False |
 

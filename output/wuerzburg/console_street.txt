@@ -1,0 +1,14 @@
+
+Würzburg, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 84716ff93f)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                                                                                                                                                                                                                                                                                                            street_names
+lage_1a      1.614     5.00        143             12.20        0.385                                                                                                                                                                                                                                                                                       Blasiusgasse; Eichhornstraße; Herzogenstraße; Juliuspromenade; Kaiserplatz; Kaiserstraße; Kürschnerhof; Marktplatz; Otto-Wels-Straße; Schmalzmarkt; Schustergasse; Schönbornstraße; Wilhelmstraße
+lage_1b      1.430     0.99        122              9.11        0.107                                                                                                                                                                                                                                                                                                                            Alte Mainbrücke; Augustinerstraße; Beim Grafeneckart; Bronnbachergasse; Dominikanergasse; Domstraße; Eichhornstraße; Marktplatz; Semmelstraße; Spiegelstraße
+ lage_2      3.173     3.09        216              7.43        0.111 Beim Grafeneckart; Bockgasse; Bronnbachergasse; CC Passage; Dominikanerpassage; Dominikanerplatz; Dompassage; Domstraße; Eichhornstraße; Glockengasse; Grabenberg; Grabengasse; Herrnstraße; Herzogenstraße; Häfnergasse; Juliuspromenade; Kaiserstraße; Karmelitenstraße; Katharinengasse; Ludwigstraße; Marienplatz; Marktplatz; Maulhardgasse; Plattnerstraße; Reisgrubengasse; Schwanenhof; Spiegelstraße; Textorstraße; Theaterstraße; Ulmer Hof; Untere Bockgasse; Wolfhartsgasse
+Schwellen: {'lage_1a': {'min_density': 7.74, 'min_brand_share': 0.161, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 2.9, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 3.87}}
+  [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: []
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 12.2 / 1b 9.11 / 2 7.43 je 100 m
+  [OK     ] Dichte 1b > 2: 1a 12.2 / 1b 9.11 / 2 7.43 je 100 m
+  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 1.614 km → lage_1a.min_density (7.74) erhöhen
+  [OK     ] lage_1b: Länge 1.0–2.0 km: 1.43 km
+  [OK     ] lage_2: Länge 2.0–4.0 km: 3.173 km

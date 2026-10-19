@@ -1,0 +1,14 @@
+
+Ludwigsburg, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash 7218b1279e)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                 street_names
+lage_1a      1.804     5.51        149             11.45        0.389   Bahnhofstraße; Hermannstraße; Kirchstraße; Kronenstraße; Körnerstraße; Myliusstraße; Reithausberg; Reithausplatz; Seestraße; Wilhelmstraße
+lage_1b      0.839     1.35         54              7.13        0.111                                                                 Arsenalstraße; Bietigheimer Straße; Schillerstraße; Seestraße; Wilhelmstraße
+ lage_2      1.069     1.25         60              6.08        0.067 Asperger Straße; Bahnhofstraße; Eberhardstraße; Holzmarkt; Holzmarktstraße; Kaffeeberg; Obere Marktstraße; Untere Marktstraße; Wilhelmstraße
+Schwellen: {'lage_1a': {'min_density': 7.19, 'min_brand_share': 0.154, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 2.7, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 3.6}}
+  [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: []
+  [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
+  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 11.45 / 1b 7.13 / 2 6.08 je 100 m
+  [OK     ] Dichte 1b > 2: 1a 11.45 / 1b 7.13 / 2 6.08 je 100 m
+  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 1.804 km → lage_1a.min_density (7.19) erhöhen
+  [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.839 km → lage_1b.min_density (2.7) senken
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.069 km → lage_2.min_density (3.6) senken

@@ -1,13 +1,13 @@
 
-Öhringen, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash b0079a805f)
-   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                            street_names
-lage_1a      0.633     0.87         46              7.85        0.109                                                                                                                                                         Kirchgasse; Marktplatz; Marktstraße; Poststraße
-lage_1b      0.000     0.00          0              0.00        0.000                                                                                                                                                                                                        
- lage_2      1.597     2.46         53              3.62        0.094 Bahnhofstraße; Bismarckstraße; Büttelbronner Straße; Heilbronner Straße; Hirschgasse; Kirchbrunnengasse; Ledergasse; Poststraße; Probsthof; Rathausstraße; Schafgasse; Schillerstraße; Untere Torstraße
-Schwellen: {'lage_1a': {'min_density': 3.55, 'min_brand_share': 0.089, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 1.52, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 2.03}}
+Öhringen, Germany – street, auto_calibrate=False, seed=strongest_chain (params_hash b0e4bcc65c)
+   lage  length_km  area_ha  poi_count  density_per_100m  brand_share                                                                                                                                                                                                 street_names
+lage_1a      0.439     0.55         39              9.66        0.103                                                                                                                                                                                      Marktstraße; Poststraße
+lage_1b      0.000     0.00          0              0.00        0.000                                                                                                                                                                                                             
+ lage_2      1.694     2.69         57              3.69        0.105 Bahnhofstraße; Bismarckstraße; Büttelbronner Straße; Heilbronner Straße; Hirschgasse; Kirchgasse; Ledergasse; Marktplatz; Poststraße; Probsthof; Rathausstraße; Schafgasse; Schillerstraße; Untere Torstraße
+Schwellen: {'lage_1a': {'min_density': 4.05, 'min_brand_share': 0.067, 'secondary_chain_share': 0.2}, 'lage_1b': {'min_density': 1.52, 'min_centrality_pct': 0.9}, 'lage_2': {'min_density': 2.03}}
   [OK     ] Genau 3 Lagen, gültig, nicht leer (1b darf leer sein): leer: ['lage_1b']
   [OK     ] Überlappung < 1.0 m²: max. 0.0000 m²
-  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 7.85 / 1b 0.0 / 2 3.62 je 100 m
-  [OK     ] lage_1a: Länge 0.6–1.2 km: 0.633 km
+  [OK     ] Dichte 1a > 1b und 1a > 2: 1a 9.66 / 1b 0.0 / 2 3.69 je 100 m
+  [WARNUNG] lage_1a: Länge 0.6–1.2 km: 0.439 km → lage_1a.min_density (4.05) senken oder lage_1a.min_brand_share (0.067) senken
   [WARNUNG] lage_1b: Länge 1.0–2.0 km: 0.0 km → lage_1b.min_density (1.52) senken
-  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.597 km → lage_2.min_density (2.03) senken
+  [WARNUNG] lage_2: Länge 2.0–4.0 km: 1.694 km → lage_2.min_density (2.03) senken
