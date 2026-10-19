@@ -223,7 +223,9 @@ street:
   relative_thresholds:
     # secondary_chain_share: weitere 1a-Ketten zählen als 1a, wenn ihr POI-Gewicht ≥ 20 % der Hauptkette ist
     # (Stuttgart: Königstraße Nord 28 %; alle anderen Ketten in HN/S/Öhringen ≤ 11 %)
-    lage_1a: {density: 0.35, brand_share: 0.8, secondary_chain_share: 0.2}
+    # Neu kalibriert mit Verkaufsflächengewicht über alle Rückmeldungen (Heilbronn-Referenz, Stuttgart Königstraße,
+    # Würzburg Schönborn-/Domstraße, Tauberbischofsheim Hauptstraße): HN-F1 1a 0,87 / 1b 0,71
+    lage_1a: {density: 0.40, brand_share: 0.6, secondary_chain_share: 0.2}
     # 1b = Laufachse (oberste 10 % lokale Zentralität, Umkreis 1a, ohne 1a) mit Mindestbesatz.
     # Optional alt_density/alt_brand_share (dichter Besatz mit hohem Filialanteil): getestet für die Calwer Straße,
     # nimmt aber höchstens 150 m davon auf und senkt den Heilbronn-F1 auf ≤ 0,61 → nicht aktiv.
