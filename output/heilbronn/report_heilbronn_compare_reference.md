@@ -1,6 +1,6 @@
 # Lagevergleich Heilbronn, Germany: Rastermodus gegen Street-Modus
 
-Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T09:38:01Z, Lauf 2026-10-19T12:02:40+00:00, params_hash `4205c497e3`.  
+Datenquelle: © OpenStreetMap-Mitwirkende (ODbL). OSM-Datenstand 2026-10-19T09:38:01Z, Lauf 2026-10-19T12:14:08+00:00, params_hash `bcd1cbb22c`.  
 Street-Modus: auto_calibrate = **False**, seed = **strongest_chain**. Overrides: street.lagen_from_reference=True. Rastermodus: `peak_share`, Res. 11, max_area_ha [6, 10, 20].
 
 ## Vergleich je Lage
@@ -29,11 +29,11 @@ Raster: Straßenlänge = Segmente im Polygon, POIs = Erdgeschoss-POIs im Polygon
 
 ## Schwellen (gewichtete Betriebe je 100 m Straßenfront)
 
-| lage | min_density | min_brand_share | secondary_chain_share | min_centrality_pct | alt_min_density | alt_min_brand_share |
-|---|---|---|---|---|---|---|
-| lage_1a | 4.34 | 0.462 | 0.2 | – | – | – |
-| lage_1b | 1.86 | – | – | 0.9 | 3.72 | 0.173 |
-| lage_2 | 2.48 | – | – | – | – | – |
+| lage | min_density | min_brand_share | secondary_chain_share | min_centrality_pct |
+|---|---|---|---|---|
+| lage_1a | 4.34 | 0.462 | 0.2 | – |
+| lage_1b | 1.86 | – | – | 0.9 |
+| lage_2 | 2.48 | – | – | – |
 
 ## Übereinstimmung mit der Referenz (Expertenabgrenzung, Segmentlänge)
 
