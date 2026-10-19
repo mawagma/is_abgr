@@ -15,6 +15,9 @@ def configure_osmnx(cfg):
     ox.settings.cache_folder = cfg["cache_dir"]
     ox.settings.overpass_url = cfg["overpass_url"]
     ox.settings.requests_timeout = cfg["requests_timeout_s"]
+    # Statusabfrage vor jedem Request hängt bei gestörten Spiegeln minutenlang und verhindert den Cache-Treffer
+    # beim Ersatzserver → abschaltbar
+    ox.settings.overpass_rate_limit = cfg.get("overpass_rate_limit", True)
 
 
 def _rule_mask(df, key, rule):

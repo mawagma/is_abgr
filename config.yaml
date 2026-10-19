@@ -133,6 +133,7 @@ output_dir: output
 # overpass-api.de ist aus dieser Umgebung gesperrt; die Spiegel liefern sporadisch 5xx → reihum versuchen.
 # Der Cache-Schlüssel enthält die URL: der Hauptserver wird zuerst gefragt (Cache-Treffer), dann die Ersatzserver.
 overpass_url: "https://overpass.kumi.systems/api"
+overpass_rate_limit: false      # osmnx-Statusabfrage aus (hängt bei gestörten Spiegeln)
 overpass_fallback_urls: ["https://overpass.private.coffee/api", "https://maps.mail.ru/osm/tools/overpass/api"]
 requests_timeout_s: 300
 overpass_retries: 20

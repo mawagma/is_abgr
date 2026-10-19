@@ -7,9 +7,15 @@ Gleiche Regel in allen Städten: Schwellen aus der Heilbronn-Kalibrierung (confi
 | heilbronn | street | 1a | 0.566 | 0.97 | 37 | 9.58 | 62% | Fleiner Straße, Am Wollhaus, Kilianstraße, Kiliansplatz, Deutschhofstraße |
 | heilbronn | street | 1b | 0.553 | 1.16 | 31 | 6.69 | 26% | Kaiserstraße, Sülmerstraße |
 | heilbronn | street | 2 | 4.598 | 8.34 | 183 | 4.4 | 14% | Allee, Gerberstraße, Lohtorstraße, Kirchbrunnenstraße, Sülmerstraße |
+| heilbronn | street_reference | 1a | 0.518 | 0.93 | 35 | 9.95 | 63% | Fleiner Straße, Am Wollhaus, Kiliansplatz, Deutschhofstraße |
+| heilbronn | street_reference | 1b | 0.585 | 1.15 | 31 | 6.19 | 23% | Kaiserstraße, Sülmerstraße |
+| heilbronn | street_reference | 2 | 4.524 | 8.1 | 185 | 4.55 | 15% | Allee, Sülmerstraße, Gerberstraße, Lohtorstraße, Kilianstraße |
 | stuttgart | street | 1a | 1.27 | 2.78 | 100 | 11.6 | 63% | Königstraße, Büchsenstraße, Stiftstraße, Neue Brücke, Gymnasiumstraße |
 | stuttgart | street | 1b | 0.397 | 0.85 | 19 | 4.97 | 5% | Königstraße, Sporerstraße, Kirchstraße |
 | stuttgart | street | 2 | 5.453 | 8.76 | 392 | 8.26 | 20% | Eberhardstraße, Sophienstraße, Calwer Straße, Arnulf-Klett-Platz, Kronenstraße |
+| essen | street | 1a | 0.676 | 1.29 | 73 | 14.46 | 45% | Kettwiger Straße, Limbecker Straße, Kornmarkt |
+| essen | street | 1b | 0.862 | 1.98 | 26 | 3.88 | 38% | Kettwiger Straße, Kennedyplatz, Kastanienallee, Theaterplatz, Limbecker Platz |
+| essen | street | 2 | 1.037 | 1.27 | 37 | 4.44 | 32% | Rathenaustraße, Friedrich-Ebert-Straße, Limbecker Straße, Kettwiger Straße, Schwarze Horn |
 | wuerzburg | street | 1a | 1.547 | 2.13 | 145 | 11.94 | 37% | Kaiserstraße, Eichhornstraße, Marktplatz, Kürschnerhof, Blasiusgasse |
 | wuerzburg | street | 1b | 1.357 | 2.41 | 101 | 8.27 | 15% | Semmelstraße, Marktplatz, Eichhornstraße, Dominikanerplatz, Bronnbachergasse |
 | wuerzburg | street | 2 | 3.493 | 4.69 | 246 | 7.52 | 9% | Juliuspromenade, Karmelitenstraße, Theaterstraße, Domstraße, Textorstraße |
