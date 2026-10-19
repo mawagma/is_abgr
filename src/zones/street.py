@@ -154,6 +154,8 @@ def classify_segments(seg, adj, th, gap, seed="max_density"):
     else:
         z1 = _chain({int(np.flatnonzero(ok1a)[np.argmax(d[ok1a])])}, ok1a, adj, gap)
     ok = d >= th["lage_1b"]["min_density"]
+    if "min_centrality_pct" in th["lage_1b"]:  # 1b nur auf zentralen Laufachsen
+        ok &= seg["central_pct"].to_numpy() >= th["lage_1b"]["min_centrality_pct"]
     ok[list(z1)] = True
     z12 = _chain(z1, ok, adj, gap)
     ok = d >= th["lage_2"]["min_density"]
@@ -168,6 +170,35 @@ def classify_segments(seg, adj, th, gap, seed="max_density"):
         rest -= c
         neben.append(sorted(c))
     return lage, neben
+
+
+def centrality_pct(seg, adj, cfg):
+    """Netzzentralität (Betweenness über das Segmentnetz, Gewicht = Länge) als Perzentil innerhalb der Stadt.
+    Misst Laufachsen: über welche Abschnitte viele kürzeste Wege führen. Stichprobe für große Netze."""
+    import networkx as nx
+    st, L = cfg["street"], seg["length_m"].to_numpy()
+    G = nx.Graph()
+    G.add_nodes_from(range(len(seg)))
+    G.add_edges_from((i, j, {"w": (L[i] + L[j]) / 2}) for i, nb in enumerate(adj) for j in nb if i < j)
+    k = min(st["centrality_samples"], len(seg))
+    bc = nx.betweenness_centrality(G, weight="w", k=k, seed=st["centrality_seed"])
+    return pd.Series([bc[i] for i in range(len(seg))]).rank(pct=True).to_numpy()
+
+
+def relative_thresholds(seg, cfg):
+    """Schwellen relativ zur Stadt: Bezug = Dichte und Filialanteil der dichtesten relative_reference_m Straße."""
+    st = cfg["street"]
+    s = seg.sort_values("density", ascending=False)
+    top = s[s["length_m"].cumsum() <= st["relative_reference_m"]]
+    D = float(np.average(top["density"], weights=top["length_m"])) if len(top) else 0.0
+    B = float(top["brand_count"].sum() / top["poi_count"].sum()) if top["poi_count"].sum() else 0.0
+    f = st["relative_thresholds"]
+    th = {"lage_1a": {"min_density": round(f["lage_1a"]["density"] * D, 2),
+                      "min_brand_share": round(f["lage_1a"]["brand_share"] * B, 3)},
+          "lage_1b": {"min_density": round(f["lage_1b"]["density"] * D, 2),
+                      "min_centrality_pct": f["lage_1b"]["centrality_pct"]},
+          "lage_2": {"min_density": round(f["lage_2"]["density"] * D, 2)}}
+    return th, {"D_ref": round(D, 2), "B_ref": round(B, 3)}
 
 
 def lage_lengths_km(seg, lage):
@@ -300,9 +331,13 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
     seg, nb, adj = build_segments(streets, cfg)
     pois = assign_pois(pois, seg, cfg)
     seg = segment_metrics(seg, pois, nb, cfg)
+    seg["central_pct"] = centrality_pct(seg, adj, cfg)
     auto = st["auto_calibrate"] if auto_calibrate is None else auto_calibrate
     ref = reference_labels(seg, cfg)
     base = st["calibrated_thresholds"] if st.get("use_calibrated_thresholds") else st["thresholds"]
+    rel = None
+    if st.get("threshold_mode") == "relative":
+        base, rel = relative_thresholds(seg, cfg)
     th, log = calibrate(seg, adj, cfg, ref) if auto else (copy.deepcopy(base), [])
     lage, neben = classify_segments(seg, adj, th, st["max_gap_segments"], st["seed"])
     if ref is not None and st.get("lagen_from_reference"):
@@ -323,7 +358,7 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None):
             targets[l] = [round(km * (1 - tol), 2), round(km * (1 + tol), 2)]
     zones = zone_attributes(street_polygons(seg, cfg, obstacles), seg)
     return {"segments": seg, "pois": pois, "zones": zones, "nebenlagen": nebenlagen_gdf(seg, neben),
-            "thresholds": th, "calibration": log, "auto_calibrate": auto, "targets_km": targets,
+            "thresholds": th, "relative_reference": rel, "calibration": log, "auto_calibrate": auto, "targets_km": targets,
             "reference_match": reference_match(seg, lage, ref) if ref is not None else None}
 
 

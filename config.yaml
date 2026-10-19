@@ -209,6 +209,20 @@ street:
   # Auf die Heilbronn-Referenz kalibrierte Schwellen (Lauf vom 19.10.2026, report_heilbronn_compare_calibrated.md).
   # use_calibrated_thresholds: true → gelten ohne auto_calibrate in jeder Stadt (gleiche Regel = vergleichbar).
   use_calibrated_thresholds: true
+  # threshold_mode relative (Standard für Städtevergleich/Benchmark): Schwellen = Faktor × Bezugswert der Stadt.
+  # Bezug = Dichte (D_ref) und Filialanteil (B_ref) der dichtesten relative_reference_m Straßenfront der Stadt.
+  # So bedeutet „1a“ in Öhringen, Heilbronn und Stuttgart dasselbe: Spitze der jeweiligen Stadt.
+  # absolute = calibrated_thresholds bzw. thresholds (Betriebe je 100 m, Filialanteil) wie bisher.
+  threshold_mode: relative
+  relative_reference_m: 300
+  # Faktoren per Gittersuche auf die Heilbronn-Referenz kalibriert (19.10.2026): F1 1a 0,95, F1 1b 0,62.
+  # 1b = 2-Lagen-Besatz auf einer Hauptlaufachse; 2-Lage-Faktor so, dass Heilbronn ≈ 4 km 2-Lage hat.
+  relative_thresholds:
+    lage_1a: {density: 0.35, brand_share: 0.8}
+    lage_1b: {density: 0.2, centrality_pct: 0.9}   # oberste 10 % Zentralität der Stadt
+    lage_2:  {density: 0.2}
+  centrality_samples: 600       # Stichprobe Betweenness (Reproduzierbarkeit über centrality_seed)
+  centrality_seed: 1
   calibrated_thresholds:
     lage_1a: {min_density: 4.2, min_brand_share: 0.40}
     lage_1b: {min_density: 3.76}
