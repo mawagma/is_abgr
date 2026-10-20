@@ -191,3 +191,15 @@ def test_excluded_area_removes_lage():
     mid = seg.geometry.interpolate(0.5, normalized=True)
     assert (seg.loc[mid.within(gewerbe).to_numpy(), "lage"] == "").all()
     assert (seg["lage"] == "lage_1a").any()
+
+
+def test_batch_reads_csv_and_passes_args(tmp_path, monkeypatch):
+    import zones.batch as b
+    calls = []
+    monkeypatch.setattr(b, "main", lambda args: calls.append(args) or 0)
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "s.csv").write_text("city;lon;lat;reference\nWürzburg, Germany;9.93;49.79;ref.geojson\n", encoding="utf-8-sig")
+    assert b.run([str(tmp_path / "s.csv"), "--source", "postgis"]) == 0
+    street, grid = calls
+    assert "--center" in street and "9.93,49.79" in street and "ref.geojson" in street
+    assert "--reference" not in grid and ["--mode", "grid"] == grid[grid.index("--mode"):grid.index("--mode") + 2]

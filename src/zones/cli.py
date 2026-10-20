@@ -71,6 +71,7 @@ def main(argv=None):
     ap.add_argument("--dsn", help="PostGIS-Verbindung, z. B. postgresql://osm@localhost:5432/osm")
     ap.add_argument("--check-db", action="store_true", help="nur prüfen, ob alle benötigten Tags in der DB abfragbar sind")
     ap.add_argument("--center", help="Zentrum „lon,lat“, falls der Ortsname in der DB nicht eindeutig ist")
+    ap.add_argument("--reference", help="Street-Modus: Referenzabgrenzung (GeoJSON mit Attribut lage) für diese Stadt")
     a = ap.parse_args(argv)
     cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8"))
     args = (("city", a.city), ("classification", a.classification), ("mode", a.mode))
@@ -86,6 +87,8 @@ def main(argv=None):
         cfg["postgis"] = {**cfg["postgis"], "dsn": a.dsn}
     if a.center:
         cfg["center_lonlat"] = [float(v) for v in a.center.split(",")]
+    if a.reference:
+        cfg["street"] = {**cfg["street"], "reference": {**(cfg["street"].get("reference") or {}), cfg["city"]: a.reference}}
     if a.check_db:
         return check_db(cfg)
     if a.from_reference:
