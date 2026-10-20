@@ -131,6 +131,11 @@ size_weighting:
 crs_metric: "EPSG:25832"
 crs_export: "EPSG:4326"
 cache_dir: cache
+# Datenquelle: overpass (online, mit Cache) | postgis (osm2pgsql-Datenbank, offline)
+data_source: overpass
+postgis:
+  dsn: "postgresql://osm@localhost:5432/osm"   # Passwort über PGPASSWORD oder .pgpass, nicht hier eintragen
+  prefix: planet_osm                           # Tabellen <prefix>_point / _line / _polygon
 output_dir: output
 # overpass-api.de ist aus dieser Umgebung gesperrt; die Spiegel liefern sporadisch 5xx → reihum versuchen.
 # Der Cache-Schlüssel enthält die URL: der Hauptserver wird zuerst gefragt (Cache-Treffer), dann die Ersatzserver.

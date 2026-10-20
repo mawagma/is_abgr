@@ -37,9 +37,13 @@ def slug(city):
     return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().replace(" ", "_")
 
 
-def osm_timestamps(cache_dir):
+def osm_timestamps(cfg):
     """(Datenstand, Abrufzeit) aus den Overpass-Antworten im osmnx-Cache.
     shortcut: nimmt das Maximum über alle Cache-Dateien, auch anderer Städte; bei gemischtem Cache je Stadt filtern."""
+    if cfg.get("data_source") == "postgis":
+        from . import db
+        return (db.timestamp(cfg),) * 2
+    cache_dir = cfg["cache_dir"]
     base, mtimes = [], []
     for f in Path(cache_dir).glob("*.json"):
         try:
@@ -63,6 +67,10 @@ def main(argv=None):
                     help="Street-Modus: Schwellen auf target_ranges_km kalibrieren (überschreibt config)")
     ap.add_argument("--seed", choices=["max_density", "strongest_chain"], help="Street-Modus: 1a-Startpunkt")
     ap.add_argument("--from-reference", action="store_true", help="Street-Modus: 1a/1b aus der Referenz übernehmen")
+    ap.add_argument("--source", choices=["overpass", "postgis"], help="Datenquelle (überschreibt data_source)")
+    ap.add_argument("--dsn", help="PostGIS-Verbindung, z. B. postgresql://osm@localhost:5432/osm")
+    ap.add_argument("--check-db", action="store_true", help="nur prüfen, ob alle benötigten Tags in der DB abfragbar sind")
+    ap.add_argument("--center", help="Zentrum „lon,lat“, falls der Ortsname in der DB nicht eindeutig ist")
     a = ap.parse_args(argv)
     cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8"))
     args = (("city", a.city), ("classification", a.classification), ("mode", a.mode))
@@ -72,6 +80,14 @@ def main(argv=None):
         if a.auto_calibrate != cfg["street"]["auto_calibrate"]:
             overrides.append(f"street.auto_calibrate={a.auto_calibrate}")
         cfg["street"] = {**cfg["street"], "auto_calibrate": a.auto_calibrate}
+    if a.source:
+        cfg["data_source"] = a.source
+    if a.dsn:
+        cfg["postgis"] = {**cfg["postgis"], "dsn": a.dsn}
+    if a.center:
+        cfg["center_lonlat"] = [float(v) for v in a.center.split(",")]
+    if a.check_db:
+        return check_db(cfg)
     if a.from_reference:
         overrides.append("street.lagen_from_reference=True")
         cfg["street"] = {**cfg["street"], "lagen_from_reference": True}
@@ -101,7 +117,7 @@ def main(argv=None):
         plaus = {n: named[named["name"] == n].geometry for n in cfg["qa"]["plausibility"].get(cfg["city"], [])}
 
     params_hash = hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:10]
-    osm_ts, fetched = osm_timestamps(cfg["cache_dir"])
+    osm_ts, fetched = osm_timestamps(cfg)
     ctx = context(raw, cfg)
     ped = ctx[(ctx["kind"] == "pedestrian") & ctx.geom_type.isin(["LineString", "MultiLineString"])].geometry
     res["zones"] = zone_attributes(res["zones"], pois, cfg, method, params_hash, osm_ts, ped)
@@ -124,6 +140,30 @@ def main(argv=None):
     return 1 if any(c["hard"] and not c["ok"] for c in checks) else 0
 
 
+def required_keys(cfg):
+    keys = {"name", "brand", "brand:wikidata", "place", "boundary", "admin_level", "building", "landuse", "tunnel",
+            "highway", "shop"}
+    for group in ("categories", "ground_floor_categories", "context"):
+        for rules in cfg[group].values():
+            keys |= set(rules)
+    return keys
+
+
+def check_db(cfg):
+    from . import db
+    cfg = {**cfg, "data_source": "postgis"}
+    s = db.schema(cfg)
+    print("Tabellen:", ", ".join(f"{cfg['postgis']['prefix']}_{t} (SRID {v['srid']}, tags {v['tags'] or 'fehlt'})"
+                                 for t, v in s.items()))
+    missing = db.check_schema(cfg, required_keys(cfg))
+    print("Alle benötigten Tags abfragbar." if not missing else
+          f"Nicht abfragbar: {', '.join(missing)} – Import mit --hstore (oder Flex-Output mit diesen Tags) nötig.")
+    if not s["point"]["tags"]:
+        print("Hinweis: ohne tags-Spalte fehlen auch disused:*/abandoned:* (Leerstand wird nicht ausgefiltert).")
+    print("Datenstand:", db.timestamp(cfg))
+    return 1 if {"brand", "name", "highway", "shop"} & set(missing) else 0
+
+
 def main_street(cfg, aoi, center, raw, pois, overrides):
     """Street-Modus; zum Vergleich wird der Rastermodus mit denselben POIs mitgerechnet."""
     obstacles = None
@@ -134,7 +174,7 @@ def main_street(cfg, aoi, center, raw, pois, overrides):
     grid_zones = build_zones(pois, aoi, cfg, cfg["classification"])["zones"]
     checks = street_checks(res, cfg)
     params_hash = hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:10]
-    osm_ts, fetched = osm_timestamps(cfg["cache_dir"])
+    osm_ts, fetched = osm_timestamps(cfg)
     meta = {"params_hash": params_hash, "osm_timestamp": osm_ts, "fetched_at": fetched, "overrides": overrides,
             "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     s = slug(cfg["city"])

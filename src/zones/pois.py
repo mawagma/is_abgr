@@ -54,7 +54,11 @@ def fetch_osm(aoi_4326, cfg):
 
 
 def features(polygon_4326, tags, cfg):
-    """ox.features_from_polygon mit Wiederholung bei 5xx/Netzfehlern, reihum über die Spiegel; Ergebnis metrisch."""
+    """ox.features_from_polygon mit Wiederholung bei 5xx/Netzfehlern, reihum über die Spiegel; Ergebnis metrisch.
+    data_source: postgis → gleiche Abfrage gegen die osm2pgsql-Datenbank (zones.db)."""
+    if cfg.get("data_source") == "postgis":
+        from . import db
+        return db.features(polygon_4326, tags, cfg)
     urls = [cfg["overpass_url"]] + cfg.get("overpass_fallback_urls", [])
     try:
         # Runde 0: alle Spiegel mit kurzem Timeout → Cache-Treffer (unter der URL des liefernden Spiegels) sofort,

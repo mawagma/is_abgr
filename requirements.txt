@@ -9,3 +9,4 @@ mapclassify
 folium
 pyyaml
 pytest
+psycopg2-binary
