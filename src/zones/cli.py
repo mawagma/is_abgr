@@ -19,7 +19,7 @@ from .grid import build_grid
 from .polygons import zone_polygons
 from .pois import categorize, configure_osmnx, context, fetch_osm, mall_polygons
 from .qa import run_checks, street_checks
-from .street import load_buildings, load_squares, load_streets, run_street
+from .street import commercial_areas, load_buildings, load_squares, load_streets, run_street
 
 
 def build_zones(pois, aoi, cfg, method):
@@ -166,11 +166,14 @@ def check_db(cfg):
 
 def main_street(cfg, aoi, center, raw, pois, overrides):
     """Street-Modus; zum Vergleich wird der Rastermodus mit denselben POIs mitgerechnet."""
+    st = cfg["street"]
+    buildings = load_buildings(center, cfg) if st["street_space_only"] or st.get("exclude_landuse") else None
     obstacles = None
-    if cfg["street"]["street_space_only"]:  # Auswertungspolygon nur Straßenraum: ohne Gebäude und Malls
-        obstacles = shapely.union_all([*load_buildings(center, cfg).to_numpy(), mall_polygons(raw)])
+    if st["street_space_only"]:  # Auswertungspolygon nur Straßenraum: ohne Gebäude und Malls
+        obstacles = shapely.union_all([*buildings.to_numpy(), mall_polygons(raw)])
     res = run_street(load_streets(aoi, cfg), pois, cfg, obstacles=obstacles,
-                     squares=load_squares(aoi, cfg) if cfg["street"].get("include_squares") else None)
+                     squares=load_squares(aoi, cfg) if st.get("include_squares") else None,
+                     excluded=commercial_areas(aoi, buildings, cfg) if st.get("exclude_landuse") else None)
     grid_zones = build_zones(pois, aoi, cfg, cfg["classification"])["zones"]
     checks = street_checks(res, cfg)
     params_hash = hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:10]

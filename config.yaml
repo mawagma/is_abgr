@@ -239,7 +239,12 @@ street:
   allow_empty_1b: true
   min_run_m: 100                # kürzere Unterbrechungen entlang derselben Straße glätten (gegen 1a-2-1a-Wechsel)
   include_squares: true         # an eine Lage grenzende Plätze (Fußgängerflächen) ins Polygon
-  backyard_opening_m: 3         # Durchgänge < 6 m zu Hinterhöfen kappen          # Kleinstädte ohne eigenständige zweite Achse: 1a + 2-Lage
+  backyard_opening_m: 3         # Durchgänge < 6 m zu Hinterhöfen kappen
+  # Gewerbegebietslagen ausschließen (z. B. Wertheim Bahnhofstraße): Abschnitte in diesen landuse-Flächen zählen für
+  # keine Lage – nur wenn dort großflächig gebaut ist (Median Gebäudegrundfläche), damit Innenstädte mit
+  # landuse=retail nicht herausfallen
+  exclude_landuse: [industrial, commercial, retail]
+  exclude_landuse_min_building_m2: 1000          # Kleinstädte ohne eigenständige zweite Achse: 1a + 2-Lage
   centrality_radius_m: 600      # lokale Zentralität: fußläufiges Umfeld der 1a (≈ 7–8 Gehminuten)
   centrality_samples: 600       # Stichprobe Betweenness (Reproduzierbarkeit über centrality_seed)
   centrality_seed: 1

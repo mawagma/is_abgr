@@ -180,3 +180,14 @@ def test_smooth_runs_fills_short_gaps():
     lage = np.array(["lage_1a", "lage_1a", "lage_2", "lage_1a", "lage_1b", "lage_1b"], dtype=object)
     out = smooth_runs(seg, lage, 100)
     assert list(out) == ["lage_1a", "lage_1a", "lage_1a", "lage_1a", "lage_1b", "lage_1b"]
+
+
+def test_excluded_area_removes_lage():
+    """Abschnitte in einer Gewerbegebietsfläche bekommen keine Lage."""
+    streets, pois = synthetic_street()
+    x0, y0 = CENTER
+    gewerbe = shapely.box(x0 - 10, y0 - 50, x0 + 150, y0 + 50)
+    seg = run_street(streets, pois, {**CFG, "city": "Teststadt"}, auto_calibrate=False, excluded=gewerbe)["segments"]
+    mid = seg.geometry.interpolate(0.5, normalized=True)
+    assert (seg.loc[mid.within(gewerbe).to_numpy(), "lage"] == "").all()
+    assert (seg["lage"] == "lage_1a").any()

@@ -399,12 +399,16 @@ def nebenlagen_gdf(seg, neben):
         {"nebenlage_id": [], "geometry": []}, geometry="geometry", crs=seg.crs)
 
 
-def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None, squares=None):
+def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None, squares=None, excluded=None):
     """Kern-Pipeline ohne Netz (Tests): Segmente → Zuordnung → Kennwerte → (Kalibrierung) → Lagen → Polygone."""
     st = cfg["street"]
     seg, nb, adj = build_segments(streets, cfg)
     pois = assign_pois(pois, seg, cfg)
     seg = segment_metrics(seg, pois, nb, cfg)
+    seg["excluded"] = False
+    if excluded is not None:  # Gewerbegebietslagen: zählen für keine Lage und verbinden keine Lagen
+        seg["excluded"] = seg.geometry.interpolate(0.5, normalized=True).within(excluded).to_numpy()
+        seg.loc[seg["excluded"], ["density", "brand_share"]] = 0.0
     auto = st["auto_calibrate"] if auto_calibrate is None else auto_calibrate
     ref = reference_labels(seg, cfg)
     base = st["calibrated_thresholds"] if st.get("use_calibrated_thresholds") else st["thresholds"]
@@ -427,6 +431,7 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None, squares=
         lage[ref != ""] = ref[ref != ""]
     if not st.get("lagen_from_reference") and st.get("min_run_m"):
         lage = smooth_runs(seg, lage, st["min_run_m"])
+    lage[seg["excluded"].to_numpy()] = ""
     seg["lage"] = lage
     targets = {l: list(v) for l, v in st["target_ranges_km"].items()}
     if ref is not None:  # km-Ziele aus der Referenz ableiten
@@ -439,6 +444,25 @@ def run_street(streets, pois, cfg, auto_calibrate=None, obstacles=None, squares=
     return {"segments": seg, "pois": pois, "zones": zones, "nebenlagen": nebenlagen_gdf(seg, neben),
             "thresholds": th, "relative_reference": rel, "calibration": log, "auto_calibrate": auto, "targets_km": targets,
             "reference_match": reference_match(seg, lage, ref) if ref is not None else None}
+
+
+def commercial_areas(aoi, buildings, cfg):
+    """Gewerbegebietslagen: landuse in exclude_landuse, deren Gebäude großflächig sind (Median-Grundfläche ≥
+    exclude_landuse_min_building_m2). Kleinteilige Innenstadtblöcke mit landuse=retail bleiben so erhalten.
+    Gebiete ohne bekannte Gebäude (außerhalb building_query_radius_m) gelten als Gewerbegebiet."""
+    st = cfg["street"]
+    aoi_ll = gpd.GeoSeries([aoi], crs=cfg["crs_metric"]).to_crs(4326).iloc[0]
+    lu = features(aoi_ll, {"landuse": st["exclude_landuse"]}, cfg)
+    lu = lu[lu.geom_type.isin(["Polygon", "MultiPolygon"])]
+    if lu.empty:
+        return None
+    b = gpd.GeoDataFrame(geometry=buildings.reset_index(drop=True), crs=cfg["crs_metric"])
+    b["a"] = b.area
+    j = gpd.sjoin(b[b.representative_point().within(aoi)].set_geometry(b.representative_point()), lu[["geometry"]],
+                  predicate="within")
+    med = j.groupby("index_right")["a"].median()
+    big = lu.index[lu.index.map(lambda i: med.get(i, float("inf")) >= st["exclude_landuse_min_building_m2"])]
+    return shapely.union_all(lu.loc[big].geometry.to_numpy()) if len(big) else None
 
 
 def load_buildings(center, cfg):
